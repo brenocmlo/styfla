@@ -26,10 +26,10 @@ export function Navbar() {
             />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-xs uppercase font-black tracking-widest text-zinc-400">
-            <Link href="/#rash-guards" className="hover:text-white transition-colors">Rash Guards</Link>
-            <Link href="/#kimonos" className="hover:text-white transition-colors">Kimonos</Link>
             <Link href="/#historia" className="hover:text-white transition-colors">Nossa História</Link>
             <Link href="/#flashboy" className="hover:text-white transition-colors">Flashboy</Link>
+            <Link href="/#rash-guards" className="hover:text-white transition-colors">Rash Guards</Link>
+            <Link href="/#kimonos" className="hover:text-white transition-colors">Kimonos</Link>
           </nav>
         </div>
 

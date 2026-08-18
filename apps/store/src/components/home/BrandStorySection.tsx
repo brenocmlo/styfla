@@ -18,13 +18,13 @@ export function BrandStorySection() {
         <div className="space-y-4 text-sm sm:text-base text-zinc-300 leading-relaxed">
           <p>
             A STYFLA nasceu dentro de uma família que vive o Jiu-Jitsu. A trajetória de{' '}
-            <strong className="text-white">João FlashBoy</strong> — treinos intensos, competições, viagens,
-            conquistas e derrotas — foi construída ao lado dos pais, presentes em cada decisão e cada desafio
-            do caminho.
+            <strong className="text-white">João FlashBoy</strong>, com treinos intensos, competições,
+            viagens, conquistas e derrotas, foi construída ao lado dos pais, presentes em cada decisão e
+            cada desafio do caminho.
           </p>
           <p>
             Dessa vivência nasceu um conceito simples: antes de toda vitória existe uma decisão. E essa
-            decisão é continuar. Continuar treinando, aprendendo, competindo, evoluindo — mesmo quando o
+            decisão é continuar. Continuar treinando, aprendendo, competindo, evoluindo, mesmo quando o
             processo exige mais.
           </p>
           <p className="text-white font-bold">

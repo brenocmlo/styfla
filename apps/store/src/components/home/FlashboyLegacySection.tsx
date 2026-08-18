@@ -16,9 +16,14 @@ export function FlashboyLegacySection() {
             />
           </div>
           <p className="text-xs text-zinc-400 leading-relaxed font-normal">
-            A STYFLA nasceu com João, mas sua filosofia pode ser vivida por qualquer atleta disposto a
-            continuar evoluindo. A linha assinatura carrega a modelagem e a identidade construídas junto
-            com sua trajetória no Jiu-Jitsu de alto rendimento.
+            Antes de fundador, João foi atleta. Anos de treinos intensos, competições e viagens construíram
+            uma rotina real de alto rendimento, vivida ao lado da família em cada vitória, cada derrota e
+            cada desafio do caminho.
+          </p>
+          <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+            A STYFLA nasceu dessa trajetória. A linha assinatura carrega a mesma modelagem, identidade e
+            mentalidade que movem João todos os dias: a decisão de continuar. Sua filosofia pode ser vivida
+            por qualquer atleta disposto a evoluir.
           </p>
           <div className="pt-2">
             <a href="#rash-guards">

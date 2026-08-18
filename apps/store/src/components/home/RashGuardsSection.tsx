@@ -76,9 +76,14 @@ export function RashGuardsSection() {
         </div>
       </div>
 
-      <p className="max-w-2xl text-zinc-400 text-sm leading-relaxed mb-10">
-        Rash guards forjadas em poliamida de alta densidade, costura flatlock quádrupla anti-rasgo e fita de silicone antiderrapante. O principal equipamento de performance da STYFLA.
-      </p>
+      <div className="max-w-2xl space-y-2 text-zinc-400 text-sm leading-relaxed mb-10">
+        <p>
+          Rash guards forjadas em poliamida de alta densidade, com costura flatlock quádrupla anti-rasgo e fita de silicone antiderrapante na cintura. Pensadas para o treino de alta intensidade e para a pressão real da competição.
+        </p>
+        <p>
+          Mais do que uma peça bonita, é o equipamento de quem decide treinar todos os dias. Você veste STYFLA porque faz parte desse estilo de vida.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.map((product) => (

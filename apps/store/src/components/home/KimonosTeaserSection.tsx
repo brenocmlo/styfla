@@ -31,7 +31,10 @@ export function KimonosTeaserSection() {
             O primeiro kimono da armadura STYFLA
           </h3>
           <p className="max-w-md text-sm text-zinc-400 leading-relaxed">
-            Representa a origem da marca. Modelagem premium, identidade forjada para alta performance — em desenvolvimento para os atletas que decidem continuar.
+            Representa a origem da marca. Modelagem premium e identidade forjada para alta performance, em desenvolvimento para os atletas que decidem continuar.
+          </p>
+          <p className="max-w-md text-sm text-zinc-400 leading-relaxed">
+            As rash guards seguem como prioridade de lançamento, mas o kimono já faz parte da família STYFLA desde o início.
           </p>
           <a
             href="https://instagram.com/styfla.br"
