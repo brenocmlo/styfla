@@ -1,0 +1,249 @@
+// packages/database/prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  STOCK_MANAGER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  PIX
+  CREDIT_CARD
+  BOLETO
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  REFUSED
+  REFUNDED
+}
+
+enum IbjjfRank {
+  NONE
+  WHITE
+  BLUE
+  PURPLE
+  BROWN
+  BLACK
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  cpf           String?   @unique
+  phone         String?
+  passwordHash  String?
+  role          Role      @default(CUSTOMER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  addresses     Address[]
+  orders        Order[]
+  cart          Cart?
+
+  @@index([email])
+}
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipient    String
+  zipCode      String   // CEP
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String   // UF
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders       Order[]
+
+  @@index([userId])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    // ex: "Rash Guards Masculinas", "No-Gi Shorts", "Faixas"
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id           String           @id @default(cuid())
+  name         String
+  slug         String           @unique
+  description  String           @db.Text
+  details      String?          @db.Text // Composição, GSM, especificações técnicas
+  categoryId   String
+  category     Category         @relation(fields: [categoryId], references: [id])
+  ibjjfRank    IbjjfRank        @default(NONE)
+  isIbjjfLegal Boolean          @default(false)
+  isActive     Boolean          @default(true)
+  isFeatured   Boolean          @default(false)
+  price        Decimal          @db.Decimal(10, 2)
+  pixPrice     Decimal          @db.Decimal(10, 2) // Preço com desconto no PIX
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  images       ProductImage[]
+  variants     ProductVariant[]
+
+  @@index([slug])
+  @@index([categoryId])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+}
+
+model ProductVariant {
+  id         String      @id @default(cuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku        String      @unique // ex: "STY-RG-BLK-M"
+  size       String      // "PP", "P", "M", "G", "GG", "2XG", "3XG"
+  color      String?     // Cor predominante
+  stock      Int         @default(0)
+  weightG    Int         @default(250) // Peso em gramas para cálculo de frete
+  heightCm   Int         @default(3)
+  widthCm    Int         @default(20)
+  lengthCm   Int         @default(25)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+
+  @@index([productId])
+  @@index([sku])
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id               String         @id @default(cuid())
+  cartId           String
+  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productVariantId String
+  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity         Int            @default(1)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@unique([cartId, productVariantId])
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  orderNumber     Int            @unique @default(autoincrement())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  addressId       String
+  address         Address        @relation(fields: [addressId], references: [id])
+  status          OrderStatus    @default(PENDING)
+  totalAmount     Decimal        @db.Decimal(10, 2)
+  subtotal        Decimal        @db.Decimal(10, 2)
+  discountAmount  Decimal        @default(0.00) @db.Decimal(10, 2)
+  shippingCost    Decimal        @db.Decimal(10, 2)
+  shippingCarrier String?        // "Correios SEDEX", "Jadlog Package", etc.
+  trackingCode    String?        // Código de Rastreio
+  couponCode      String?
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  items           OrderItem[]
+  payment         Payment?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id               String         @id @default(cuid())
+  orderId          String
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productVariantId String
+  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
+  productName      String         // Snapshot no momento da compra
+  variantInfo      String         // Ex: "Tamanho G - Faixa Azul"
+  unitPrice        Decimal        @db.Decimal(10, 2)
+  quantity         Int
+  totalPrice       Decimal        @db.Decimal(10, 2)
+
+  @@index([orderId])
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  orderId       String        @unique
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  transactionId String?       // ID externo retornado pelo gateway (Mercado Pago / Stripe)
+  qrCodePix     String?       @db.Text
+  qrCodeUrlPix  String?       @db.Text
+  boletoUrl     String?       @db.Text
+  paidAt        DateTime?
+  expiresAt     DateTime?     // Limite para pagamento de PIX/Boleto
+  rawResponse   Json?         // Log completo do payload do Webhook
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Coupon {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  discountPercent Int?
+  discountValue   Decimal?  @db.Decimal(10, 2)
+  minOrderValue   Decimal?  @db.Decimal(10, 2)
+  maxUses         Int?
+  usedCount       Int       @default(0)
+  isActive        Boolean   @default(true)
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+}

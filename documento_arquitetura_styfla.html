@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Styfla - Documento de Arquitetura de Software e Requisitos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 15mm 18mm 15mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #ffffff;
+      color: #1a1e24;
+      line-height: 1.55;
+      font-size: 10pt;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .avoid-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* HEADER & COVER */
+    .header-banner {
+      background: linear-gradient(135deg, #0d0e11 0%, #1a1d24 100%);
+      color: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      border-left: 6px solid #e63946;
+    }
+
+    .brand-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 26pt;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-title span.tag {
+      font-size: 10pt;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      background: #e63946;
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .doc-subtitle {
+      font-size: 12pt;
+      color: #cbd5e1;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 8.5pt;
+    }
+
+    .meta-item strong {
+      display: block;
+      color: #94a3b8;
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-item span {
+      color: #f8fafc;
+      font-weight: 600;
+    }
+
+    /* TYPOGRAPHY */
+    h1, h2, h3, h4 {
+      font-family: 'Syne', sans-serif;
+      color: #0d0e11;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 14pt;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-top: 22px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h2 .sec-num {
+      background: #0d0e11;
+      color: #fff;
+      font-size: 9pt;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    h3 {
+      font-size: 11pt;
+      margin-top: 14px;
+      margin-bottom: 8px;
+      color: #1e293b;
+    }
+
+    p {
+      margin-bottom: 10px;
+      color: #334155;
+      text-align: justify;
+    }
+
+    /* TABLES */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px 0;
+      font-size: 8.5pt;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+    }
+
+    th {
+      background-color: #0f172a;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* BADGES & CHIPS */
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-red { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-green { background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-dark { background: #1e293b; color: #f8fafc; }
+    .badge-gold { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+
+    /* IBJJF BELT COLORS */
+    .belt-white { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+    .belt-blue { background: #2563eb; color: #fff; }
+    .belt-purple { background: #7c3aed; color: #fff; }
+    .belt-brown { background: #78350f; color: #fff; }
+    .belt-black { background: #000000; color: #fff; border-left: 4px solid #dc2626; }
+
+    /* CODE & PRE */
+    pre, code {
+      font-family: 'Fira Code', monospace;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 7.5pt;
+      line-height: 1.45;
+      overflow-x: auto;
+      margin: 10px 0 14px 0;
+      border: 1px solid #334155;
+    }
+
+    code.inline {
+      background: #f1f5f9;
+      color: #b91c1c;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 8pt;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* LISTS & BOXES */
+    ul, ol {
+      margin-left: 18px;
+      margin-bottom: 12px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border-left: 4px solid #0ea5e9;
+      padding: 10px 14px;
+      margin: 12px 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 8.5pt;
+    }
+
+    .highlight-box {
+      background: #fff1f2;
+      border-left: 4px solid #e63946;
+      padding: 10px 14px;
+      margin: 12px 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 8.5pt;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .card-block {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .card-block h4 {
+      font-size: 9.5pt;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    /* DIAGRAM BOX */
+    .flow-container {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 14px;
+      margin: 12px 0;
+      text-align: center;
+    }
+
+    .flow-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .flow-node {
+      background: #0f172a;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 8pt;
+      font-weight: 600;
+      flex: 1;
+      border: 1px solid #334155;
+    }
+
+    .flow-node.highlight {
+      background: #e63946;
+      border-color: #b91c1c;
+    }
+
+    .flow-arrow {
+      color: #64748b;
+      font-weight: bold;
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 24px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      color: #94a3b8;
+      font-size: 7.5pt;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER BANNER -->
+  <div class="header-banner">
+    <div class="brand-title">
+      STYFLA <span class="tag">SPEC TÉCNICA</span>
+    </div>
+    <div class="doc-subtitle">Documento de Arquitetura de Software, UX/UI e Levantamento de Requisitos</div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Nicho</strong>
+        <span>Rash Guards & No-Gi BJJ</span>
+      </div>
+      <div class="meta-item">
+        <strong>Stack</strong>
+        <span>Turborepo / Next.js / Prisma</span>
+      </div>
+      <div class="meta-item">
+        <strong>Deploy</strong>
+        <span>VPS Própria (Docker/Nginx)</span>
+      </div>
+      <div class="meta-item">
+        <strong>Benchmark</strong>
+        <span>Rastahale.com.br</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 1: VISÃO DO PRODUTO & PERSONAS -->
+  <h2><span class="sec-num">01</span> Visão do Produto e Personas</h2>
+  
+  <p>A <strong>Styfla</strong> posiciona-se na vanguarda do mercado de vestuário de Jiu-Jitsu, unindo <strong>alta tecnologia de compressão</strong> (costura flatlock quádrupla, proteção UV50+, fita de silicone antiderrapante na barra e conformidade com os regulamentos internacionais da IBJJF/CBJJ) à autenticidade estética do <strong>streetwear de combate</strong>.</p>
+
+  <div class="highlight-box">
+    <strong>Tom de Voz da Marca:</strong> Direto, disciplinado, focado em performance e estética autêntica do tatame. Comunicação objetiva, valorizando a resistência dos materiais e o caimento ergonômico no corpo do atleta.
+  </div>
+
+  <h3>Mapeamento de Personas</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Persona</th>
+        <th style="width: 25%;">Perfil & Frequência</th>
+        <th style="width: 25%;">Principais Dores</th>
+        <th style="width: 25%;">Solução Styfla</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. O Competidor No-Gi</strong><br><em>"Felipe", 26 anos</em></td>
+        <td>Treina 5x/semana, compete regularmente em torneios oficiais (CBJJ/IBJJF).</td>
+        <td>Rash guards que rasgam na costura durante pegadas, sobem na cintura e são reprovadas na checagem de regras de cores da IBJJF.</td>
+        <td>Filtro exclusivo <em>IBJJF Approved</em> por faixa, costura reforçada com fio texturizado, grip de silicone na barra e entrega expressa via PIX.</td>
+      </tr>
+      <tr>
+        <td><strong>2. O Praticante Casual / Lifestyle</strong><br><em>"Lucas", 34 anos</em></td>
+        <td>Treina 3x/semana, consome a cultura de arte marcial e busca peças com design exclusivo.</td>
+        <td>Modelagens desconfortáveis fora do padrão, tecidos que esquentam e e-commerces com checkout burocrático e lento.</td>
+        <td>Visual marcante inspirado no lifestyle do tatame (estilo <em>Rastahale</em>), tecidos com alta respirabilidade e compra em 1-clique no mobile.</td>
+      </tr>
+      <tr>
+        <td><strong>3. A Atleta / Feminino</strong><br><em>"Mariana", 29 anos</em></td>
+        <td>Praticante assídua que busca equipamentos desenvolvidos especificamente para a anatomia feminina.</td>
+        <td>Falta de modelagens com corte ergonômico feminino e tecidos que ficam transparentes ao esticar.</td>
+        <td>Modelagem com cintura ajustada e peito estruturado, gramatura reforçada anti-transparência e tabela de medidas dedicada.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SEÇÃO 2: LEVANTAMENTO DE REQUISITOS -->
+  <div class="page-break"></div>
+  <h2><span class="sec-num">02</span> Levantamento de Requisitos</h2>
+
+  <div class="grid-2">
+    <div class="card-block">
+      <h4><span class="badge badge-blue">Storefront</span> Área do Cliente</h4>
+      <ul>
+        <li><strong>RF-C01 (Catálogo & Filtros):</strong> Filtros por Graduação IBJJF (Branca a Preta), Gênero, Tamanho (PP ao 3XG) e Coleções.</li>
+        <li><strong>RF-C02 (Página do Produto - PDP):</strong> Carrossel com fotos em alta resolução, zoom, vídeo do caimento em ação, provador virtual (Peso × Altura) e cálculo instantâneo de frete por CEP.</li>
+        <li><strong>RF-C03 (Cart Drawer):</strong> Gaveta lateral de adição assíncrona, barra dinâmica de Frete Grátis e sugestão de cross-sell (ex: bermudas No-Gi).</li>
+        <li><strong>RF-C04 (Checkout Transparente):</strong> Fluxo simplificado com PIX (QR Code e Copia-e-Cola em tempo real), Cartão de Crédito e Boleto com busca automática de endereço via CEP.</li>
+        <li><strong>RF-C05 (Painel do Usuário):</strong> Linha do tempo de pedidos, rastreamento integrado da transportadora e gestão de múltiplos endereços.</li>
+      </ul>
+    </div>
+
+    <div class="card-block">
+      <h4><span class="badge badge-red">Dashboard</span> Área do Administrador</h4>
+      <ul>
+        <li><strong>RF-A01 (Métricas de Vendas):</strong> Dashboard em tempo real de faturamento, ticket médio, conversão e pedidos pendentes.</li>
+        <li><strong>RF-A02 (Gestão de Produtos & Grade):</strong> Cadastro com variantes de cor/faixa e tamanho, upload ordenável de imagens e flags de destaque.</li>
+        <li><strong>RF-A03 (Controle de Estoque):</strong> Saldo individual por SKU, alertas automáticos de estoque crítico e log de movimentações.</li>
+        <li><strong>RF-A04 (Gestão de Pedidos):</strong> Separação de pedidos (picking list), alteração de status e emissão direta de etiquetas de frete.</li>
+        <li><strong>RF-A05 (Cupons & Promoções):</strong> Cupons por valor fixo, percentual, frete grátis e limitação por CPF ou valor mínimo.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Requisitos Não-Funcionais (RNF)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 20%;">Dimensão</th>
+        <th style="width: 35%;">Requisito & Métrica</th>
+        <th style="width: 45%;">Estratégia de Implementação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Performance</strong></td>
+        <td>LCP &le; 1.2s, FID &lt; 100ms, CLS &asymp; 0.</td>
+        <td>Next.js com ISR (Incremental Static Regeneration) para páginas de produto e otimização de imagens WebP/AVIF via <code class="inline">next/image</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Segurança</strong></td>
+        <td>PCI-DSS Compliance, HTTPS/HSTS estrito e proteção contra ataques.</td>
+        <td>Tokenização direta no client-side via Gateway de Pagamento (sem armazenar dados de cartão), NextAuth/Auth.js com JWT e Rate Limiting com Redis.</td>
+      </tr>
+      <tr>
+        <td><strong>SEO Técnico</strong></td>
+        <td>Indexação imediata e rich snippets de e-commerce.</td>
+        <td>Geração dinâmica de meta-tags OpenGraph, Schema.org (<code class="inline">Product</code>, <code class="inline">Offer</code>, <code class="inline">BreadcrumbList</code>) e sitemap.xml automatizado.</td>
+      </tr>
+      <tr>
+        <td><strong>Deploy na VPS</strong></td>
+        <td>Alta disponibilidade, isolamento e recuperação ágil.</td>
+        <td>Docker Compose com builds multi-stage, Nginx Reverse Proxy com SSL Let's Encrypt (Certbot) e backups diários do PostgreSQL via cron para bucket S3.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Regras de Negócio Críticas (RN)</h3>
+  <ul>
+    <li><strong>RN01 (Cálculo de Frete & Cubagem):</strong> Dimensões base da embalagem da rash guard: $25\text{cm} \times 20\text{cm} \times 3\text{cm}$ e peso aproximado de $250\text{g}$. No cálculo de múltiplos itens, a altura é empilhada dinamicamente para a cotação no Melhor Envio/Correios.</li>
+    <li><strong>RN02 (Reserva de Estoque em Checkout Pendente):</strong>
+      <ul>
+        <li><strong>PIX:</strong> O estoque é reservado por <strong>30 minutos</strong>. Caso o webhook não receba a confirmação, o pedido é cancelado e o estoque liberado.</li>
+        <li><strong>Boleto:</strong> Reserva por <strong>2 dias úteis</strong>.</li>
+        <li><strong>Cartão:</strong> Baixa imediata na aprovação síncrona da adquirente.</li>
+      </ul>
+    </li>
+    <li><strong>RN03 (Prevenção de Venda sem Estoque):</strong> É vedada a adição ao carrinho de variantes com saldo zero, exceto produtos configurados expressamente com a flag <code class="inline">isPreOrder: true</code>.</li>
+    <li><strong>RN04 (Estornos e Devoluções):</strong> De acordo com o CDC (7 dias corridos para arrependimento), o estorno automático via gateway só é liberado antes do despacho, ou após validação física da devolução pelo administrador.</li>
+  </ul>
+
+  <!-- SEÇÃO 3: ARQUITETURA DO MONOREPO -->
+  <div class="page-break"></div>
+  <h2><span class="sec-num">03</span> Arquitetura do Monorepo (Turborepo)</h2>
+
+  <p>A arquitetura foi desenhada em <strong>Turborepo</strong> com <strong>pnpm workspaces</strong> para garantir modularidade, reaproveitamento de componentes e tipagem estrita de ponta a ponta.</p>
+
+  <div class="flow-container">
+    <div class="flow-row">
+      <div class="flow-node highlight">apps/store<br><small>Next.js 14 (Loja Virtual)</small></div>
+      <div class="flow-arrow">&larr;&rarr;</div>
+      <div class="flow-node highlight">apps/admin<br><small>Next.js 14 (Painel de Gestão)</small></div>
+    </div>
+    <div class="flow-arrow">&darr; Consomem Pacotes Compartilhados &darr;</div>
+    <div class="flow-row" style="margin-top: 10px;">
+      <div class="flow-node">packages/database<br><small>Prisma ORM & Singleton</small></div>
+      <div class="flow-node">packages/ui<br><small>Design System React</small></div>
+      <div class="flow-node">packages/services<br><small>Frete & Pagamento</small></div>
+      <div class="flow-node">packages/types<br><small>TypeScript Definitions</small></div>
+    </div>
+  </div>
+
+  <h3>Estrutura de Pastas do Projeto</h3>
+  <pre><code>styfla-monorepo/
+├── apps/
+│   ├── store/                     # E-commerce público (App Router: /, /produtos, /carrinho, /checkout)
+│   └── admin/                     # Painel Admin (App Router: /dashboard, /produtos, /pedidos, /estoque)
+├── packages/
+│   ├── database/                  # Prisma Schema, Migrations e Singleton PrismaClient
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma      # Definição do modelo de dados PostgreSQL
+│   │   │   └── migrations/
+│   │   └── src/client.ts          # Exportação do client único
+│   ├── ui/                        # Design System compartilhado (ProductCard, CartDrawer, etc.)
+│   ├── services/                  # Wrappers: Mercado Pago, Stripe, Melhor Envio, Correios
+│   ├── types/                     # Tipos TypeScript compartilhados (Cart, Order, Checkout)
+│   ├── config-eslint/             # Configurações de Linting padronizadas
+│   └── config-typescript/         # tsconfig base compartilhado
+├── docker/
+│   ├── Dockerfile.store           # Build multi-stage da Loja
+│   ├── Dockerfile.admin           # Build multi-stage do Admin
+│   ├── docker-compose.yml         # Orquestração local/VPS
+│   └── nginx.conf                 # Reverse proxy e SSL
+├── turbo.json                     # Pipeline de build e cache
+└── pnpm-workspace.yaml            # Configuração de workspaces</code></pre>
+
+  <h3>Encapsulamento do Prisma (`packages/database/src/client.ts`)</h3>
+  <pre><code>import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  });
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+export * from '@prisma/client';</code></pre>
+
+  <!-- SEÇÃO 4: DESIGN SYSTEM BÁSICO -->
+  <div class="page-break"></div>
+  <h2><span class="sec-num">04</span> Design System Básico (UI/UX)</h2>
+
+  <p>Inspirado na referência da <strong>Rastahale</strong>: forte apelo visual, fotografia editorial de alta energia no tatame, contraste marcante e elementos focados em conversão imediata.</p>
+
+  <h3>Tokens de Cores</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Token</th>
+        <th style="width: 20%;">Hexadecimal</th>
+        <th style="width: 20%;">Amostra</th>
+        <th style="width: 35%;">Aplicação no E-commerce</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>--color-bg-primary</code></td>
+        <td><code>#0D0E11</code></td>
+        <td><span style="display:inline-block;width:35px;height:16px;background:#0D0E11;border-radius:3px;border:1px solid #999;"></span></td>
+        <td>Fundo principal escuro ("Matte Black"), estética de tatame premium.</td>
+      </tr>
+      <tr>
+        <td><code>--color-bg-surface</code></td>
+        <td><code>#16181D</code></td>
+        <td><span style="display:inline-block;width:35px;height:16px;background:#16181D;border-radius:3px;border:1px solid #999;"></span></td>
+        <td>Superfície de cards de produtos, drawers e modais.</td>
+      </tr>
+      <tr>
+        <td><code>--color-accent-red</code></td>
+        <td><code>#E63946</code></td>
+        <td><span style="display:inline-block;width:35px;height:16px;background:#E63946;border-radius:3px;"></span></td>
+        <td><strong>Botão Comprar (CTA)</strong>, selos de urgência e desconto.</td>
+      </tr>
+      <tr>
+        <td><code>--color-pix-green</code></td>
+        <td><code>#00C08B</code></td>
+        <td><span style="display:inline-block;width:35px;height:16px;background:#00C08B;border-radius:3px;"></span></td>
+        <td>Destaque para preços com desconto no PIX e confirmações.</td>
+      </tr>
+      <tr>
+        <td><code>--color-accent-gold</code></td>
+        <td><code>#D4AF37</code></td>
+        <td><span style="display:inline-block;width:35px;height:16px;background:#D4AF37;border-radius:3px;"></span></td>
+        <td>Linha Championship / Edições limitadas de atletas.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Cores de Graduação IBJJF (Badges de Faixa)</h3>
+  <div style="display: flex; gap: 8px; margin: 10px 0 16px 0;">
+    <span class="badge belt-white">Branca #E2E8F0</span>
+    <span class="badge belt-blue">Azul #2563EB</span>
+    <span class="badge belt-purple">Roxa #7C3AED</span>
+    <span class="badge belt-brown">Marrom #78350F</span>
+    <span class="badge belt-black">Preta #000000</span>
+  </div>
+
+  <h3>Tipografia & Componentes Core (`packages/ui`)</h3>
+  <div class="grid-2">
+    <div class="card-block">
+      <h4>Tipografia</h4>
+      <ul>
+        <li><strong>Headings & Display:</strong> <code class="inline">Syne</code> / <code class="inline">Bebas Neue</code>. Usada em títulos H1-H3, banners e preços principais para conferir força e impacto.</li>
+        <li><strong>Corpo de Texto & UI:</strong> <code class="inline">Plus Jakarta Sans</code> / <code class="inline">Inter</code>. Otimizada para leitura rápida de descrições e formulários em telas mobile.</li>
+      </ul>
+    </div>
+    <div class="card-block">
+      <h4>Componentes Essenciais</h4>
+      <ul>
+        <li><strong>ProductCard:</strong> Transição suave de foto no hover para atleta em ação, seleção rápida de tamanho e badge IBJJF.</li>
+        <li><strong>CartDrawer:</strong> Gaveta lateral com barra de progresso para frete grátis e cross-sell.</li>
+        <li><strong>SizeGuideModal:</strong> Matriz interativa Altura (cm) × Peso (kg) para escolha precisa de rash guard.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 5: MODELAGEM DE DADOS -->
+  <div class="page-break"></div>
+  <h2><span class="sec-num">05</span> Modelagem de Dados Inicial (Prisma)</h2>
+
+  <pre><code>// packages/database/prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role { CUSTOMER ADMIN STOCK_MANAGER }
+enum OrderStatus { PENDING PAID PROCESSING SHIPPED DELIVERED CANCELED REFUNDED }
+enum PaymentMethod { PIX CREDIT_CARD BOLETO }
+enum PaymentStatus { PENDING AUTHORIZED PAID REFUSED REFUNDED }
+enum IbjjfRank { NONE WHITE BLUE PURPLE BROWN BLACK }
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  cpf          String?   @unique
+  phone        String?
+  passwordHash String?
+  role         Role      @default(CUSTOMER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  addresses    Address[]
+  orders       Order[]
+  cart         Cart?
+}
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipient    String
+  zipCode      String   // CEP
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String   // UF
+  isDefault    Boolean  @default(false)
+  orders       Order[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    // ex: "Rash Guards Masculinas", "No-Gi Shorts"
+  slug        String    @unique
+  products    Product[]
+}
+
+model Product {
+  id           String           @id @default(cuid())
+  name         String
+  slug         String           @unique
+  description  String           @db.Text
+  details      String?          @db.Text
+  categoryId   String
+  category     Category         @relation(fields: [categoryId], references: [id])
+  ibjjfRank    IbjjfRank        @default(NONE)
+  isIbjjfLegal Boolean          @default(false)
+  isActive     Boolean          @default(true)
+  price        Decimal          @db.Decimal(10, 2)
+  pixPrice     Decimal          @db.Decimal(10, 2)
+  images       ProductImage[]
+  variants     ProductVariant[]
+}
+
+model ProductVariant {
+  id         String      @id @default(cuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku        String      @unique // ex: "STY-RG-BLK-M"
+  size       String      // "PP", "P", "M", "G", "GG", "2XG"
+  stock      Int         @default(0)
+  weightG    Int         @default(250) // Peso para frete
+  heightCm   Int         @default(3)
+  widthCm    Int         @default(20)
+  lengthCm   Int         @default(25)
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  orderNumber     Int            @unique @default(autoincrement())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  addressId       String
+  address         Address        @relation(fields: [addressId], references: [id])
+  status          OrderStatus    @default(PENDING)
+  totalAmount     Decimal        @db.Decimal(10, 2)
+  subtotal        Decimal        @db.Decimal(10, 2)
+  shippingCost    Decimal        @db.Decimal(10, 2)
+  shippingCarrier String?
+  trackingCode    String?
+  items           OrderItem[]
+  payment         Payment?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model OrderItem {
+  id               String         @id @default(cuid())
+  orderId          String
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productVariantId String
+  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
+  productName      String
+  variantInfo      String
+  unitPrice        Decimal        @db.Decimal(10, 2)
+  quantity         Int
+  totalPrice       Decimal        @db.Decimal(10, 2)
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  orderId       String        @unique
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+  qrCodePix     String?       @db.Text
+  qrCodeUrlPix  String?       @db.Text
+  paidAt        DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime      @default(now())
+}</code></pre>
+
+  <!-- SEÇÃO 6: BENCHMARK & SEÇÃO 7: ROADMAP JIRA -->
+  <div class="page-break"></div>
+  <h2><span class="sec-num">06</span> Análise de Benchmark (Rastahale)</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Elemento Rastahale</th>
+        <th style="width: 35%;">Análise de Sucesso</th>
+        <th style="width: 40%;">Implementação no Styfla</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Fotografia Editorial</strong></td>
+        <td>Fotos reais em ação que transmitem autenticidade imediata.</td>
+        <td>Galeria interativa com close em costuras quádruplas e vídeo curto do caimento sob tração no rola.</td>
+      </tr>
+      <tr>
+        <td><strong>Grade Visível</strong></td>
+        <td>Escolha de tamanho direta em pílulas sem menus suspensos.</td>
+        <td>Seletores <code class="inline">[ P ] [ M ] [ G ] [ GG ]</code> com desativação visual dos itens esgotados e gatilho "Avise-me".</td>
+      </tr>
+      <tr>
+        <td><strong>Checkout Direto</strong></td>
+        <td>Foco total em conversão móvel.</td>
+        <td>Checkout 1-Click com PIX Copia-e-Cola automático no clique e timer regressivo de reserva.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2><span class="sec-num">07</span> Roadmap de Épicos & Cards (Jira / Trello)</h2>
+
+  <div class="grid-2">
+    <div class="card-block">
+      <h4>Épico 1: Infraestrutura & Monorepo</h4>
+      <ul>
+        <li><code>[STY-01]</code> Setup Turborepo + pnpm workspaces.</li>
+        <li><code>[STY-02]</code> Setup Prisma PostgreSQL em packages/database.</li>
+        <li><code>[STY-03]</code> Docker Compose multi-stage + Nginx VPS.</li>
+      </ul>
+      <h4 style="margin-top: 10px;">Épico 2: Design System & Storefront</h4>
+      <ul>
+        <li><code>[STY-04]</code> Tokens CSS e componentes base em packages/ui.</li>
+        <li><code>[STY-05]</code> ProductCard com hover e badge IBJJF.</li>
+        <li><code>[STY-06]</code> Catálogo com filtros de faixa/tamanho.</li>
+        <li><code>[STY-07]</code> Página de produto com Guia de Medidas.</li>
+      </ul>
+    </div>
+
+    <div class="card-block">
+      <h4>Épico 3: Carrinho, Frete & Pagamento</h4>
+      <ul>
+        <li><code>[STY-08]</code> CartDrawer com régua de Frete Grátis.</li>
+        <li><code>[STY-09]</code> Integração Melhor Envio / Correios.</li>
+        <li><code>[STY-10]</code> Integração Mercado Pago / Stripe (PIX/Cartão).</li>
+        <li><code>[STY-11]</code> Webhook de confirmação instantânea.</li>
+      </ul>
+      <h4 style="margin-top: 10px;">Épico 4: Gestão e Painéis</h4>
+      <ul>
+        <li><code>[STY-12]</code> Área do Cliente: Meus Pedidos e Rastreio.</li>
+        <li><code>[STY-13]</code> Dashboard Admin de Vendas e Pedidos.</li>
+        <li><code>[STY-14]</code> Gestão de Produtos, Grade e Estoque.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Styfla E-commerce Architecture &bull; Documento Técnico de Engenharia e Produto</span>
+    <span>Gerado em 2026 &bull; Confidencial</span>
+  </div>
+
+</body>
+</html>

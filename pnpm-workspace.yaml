@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  'prisma': true
+  '@turbo/darwin-64': true
+  'unrs-resolver': true

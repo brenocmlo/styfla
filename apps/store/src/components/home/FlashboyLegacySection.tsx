@@ -1,0 +1,48 @@
+import { Button } from '@styfla/ui';
+
+export function FlashboyLegacySection() {
+  return (
+    <section className="py-20 px-6 border-t border-white/10" id="flashboy">
+      <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 p-10 bg-zinc-950 border border-white/15">
+        <div className="space-y-4 max-w-lg">
+          <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-zinc-400 font-bold block">
+            ATLETA &bull; FUNDADOR &bull; INSPIRAÇÃO
+          </span>
+          <div className="py-2">
+            <img
+              src="/brand/joao-flashboy.png"
+              alt="JOAO FLASHBOY"
+              className="h-14 sm:h-20 w-auto object-contain"
+            />
+          </div>
+          <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+            A STYFLA nasceu com João, mas sua filosofia pode ser vivida por qualquer atleta disposto a
+            continuar evoluindo. A linha assinatura carrega a modelagem e a identidade construídas junto
+            com sua trajetória no Jiu-Jitsu de alto rendimento.
+          </p>
+          <div className="pt-2">
+            <a href="#rash-guards">
+              <Button variant="primary" size="md" className="tracking-wider text-xs">
+                Garantir Edição Limitada
+              </Button>
+            </a>
+          </div>
+        </div>
+
+        <div className="relative aspect-[3/4] w-64 md:w-80 bg-zinc-900 border border-white/10 overflow-hidden shrink-0">
+          <img
+            src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=85"
+            alt="João Flashboy"
+            className="w-full h-full object-cover grayscale contrast-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+          <div className="absolute bottom-4 left-4 right-4 text-center">
+            <span className="text-[11px] font-mono font-black uppercase text-white tracking-widest block">
+              SPEED &amp; POWER &bull; NO-GI
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
