@@ -43,15 +43,20 @@ export function ProductSizeSelector({
       <div className={`grid ${SIZE_GRID_COLS[variants.length] ?? 'grid-cols-6'} gap-2`}>
         {variants.map((v) => {
           const isSelected = selectedVariant.id === v.id;
+          const isSoldOut = v.stock === 0;
           return (
             <button
               key={v.id}
               type="button"
-              onClick={() => onSelectVariant(v)}
-              className={`py-3 text-xs font-mono font-black uppercase transition-all border cursor-pointer ${
-                isSelected
-                  ? 'bg-white text-black border-white shadow-lg'
-                  : 'bg-zinc-950 text-zinc-300 border-white/15 hover:border-white/50 hover:bg-zinc-900'
+              disabled={isSoldOut}
+              title={isSoldOut ? 'Esgotado' : undefined}
+              onClick={() => !isSoldOut && onSelectVariant(v)}
+              className={`relative py-3 text-xs font-mono font-black uppercase transition-all border ${
+                isSoldOut
+                  ? 'bg-zinc-950 text-zinc-700 border-white/5 cursor-not-allowed line-through'
+                  : isSelected
+                    ? 'bg-white text-black border-white shadow-lg cursor-pointer'
+                    : 'bg-zinc-950 text-zinc-300 border-white/15 hover:border-white/50 hover:bg-zinc-900 cursor-pointer'
               }`}
             >
               {v.size}

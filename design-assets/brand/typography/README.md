@@ -10,13 +10,12 @@ A fonte oficial utilizada nos logotipos, títulos, estampas de rash guards e ban
 
 ## 📁 Onde colocar os arquivos de fonte:
 
-Para que a fonte personalizada seja carregada automaticamente na Loja Virtual e no Admin:
+Para que a fonte personalizada seja carregada automaticamente na Loja Virtual e no Admin (ambos no mesmo app `apps/store`, incluindo as rotas `/admin`):
 
 1. Coloque os arquivos da fonte (`Legacy-Bold.woff2`, `Legacy.ttf`, `Legacy.otf`) nesta pasta:
    - `design-assets/brand/typography/`
-2. E também nas pastas públicas dos apps para carregamento web:
+2. E também na pasta pública do app para carregamento web:
    - `apps/store/public/fonts/Legacy-Bold.woff2`
-   - `apps/admin/public/fonts/Legacy-Bold.woff2`
 
 ---
 

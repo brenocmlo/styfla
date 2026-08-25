@@ -60,12 +60,12 @@ export function ProductPurchasePanel({
         onOpenSizeGuide={onOpenSizeGuide}
       />
 
-      <div className="space-y-3 pt-2">
+      <div className="flex flex-col sm:flex-row gap-3 pt-2">
         <Button
           variant="pix"
           size="lg"
           onClick={onBuyNow}
-          className="w-full flex items-center justify-center gap-2 text-xs font-black tracking-widest py-4"
+          className="flex-1 flex items-center justify-center gap-2 text-xs font-black tracking-widest py-4"
         >
           <Zap className="w-4 h-4" /> Comprar Agora com 1-Click PIX
         </Button>
@@ -74,7 +74,7 @@ export function ProductPurchasePanel({
           variant="outline"
           size="lg"
           onClick={onAddToCart}
-          className="w-full flex items-center justify-center gap-2 text-xs font-black tracking-widest py-4"
+          className="flex-1 flex items-center justify-center gap-2 text-xs font-black tracking-widest py-4"
         >
           <ShoppingBag className="w-4 h-4" /> Adicionar à Sacola
         </Button>

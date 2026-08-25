@@ -1,10 +1,37 @@
+'use client';
+
+import { useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 import { Button } from '@styfla/ui';
 
+gsap.registerPlugin(ScrollTrigger);
+
 export function FlashboyLegacySection() {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const scrollTrigger = {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse',
+        };
+        gsap.from('.flashboy-text', { opacity: 0, y: 24, duration: 0.6, ease: 'power2.out', scrollTrigger });
+        gsap.from('.flashboy-photo', { opacity: 0, scale: 1.08, duration: 0.7, ease: 'power2.out', scrollTrigger });
+      });
+      return () => mm.revert();
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <section className="py-20 px-6 border-t border-white/10" id="flashboy">
+    <section ref={sectionRef} className="py-20 px-6 border-t border-white/10" id="flashboy">
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 p-10 bg-zinc-950 border border-white/15">
-        <div className="space-y-4 max-w-lg">
+        <div className="flashboy-text space-y-4 max-w-lg">
           <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-zinc-400 font-bold block">
             ATLETA &bull; FUNDADOR &bull; INSPIRAÇÃO
           </span>
@@ -34,7 +61,7 @@ export function FlashboyLegacySection() {
           </div>
         </div>
 
-        <div className="relative aspect-[3/4] w-64 md:w-80 bg-zinc-900 border border-white/10 overflow-hidden shrink-0">
+        <div className="flashboy-photo relative aspect-[3/4] w-64 md:w-80 bg-zinc-900 border border-white/10 overflow-hidden shrink-0">
           <img
             src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=85"
             alt="João Flashboy"

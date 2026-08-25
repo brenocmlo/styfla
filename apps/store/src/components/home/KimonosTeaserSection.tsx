@@ -1,10 +1,15 @@
+'use client';
+
 import { Badge } from '@styfla/ui';
 import { Sparkles } from 'lucide-react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 export function KimonosTeaserSection() {
+  const containerRef = useScrollReveal<HTMLDivElement>({ y: 16, stagger: 0.1 });
+
   return (
     <section className="py-20 px-6 border-t border-white/10" id="kimonos">
-      <div className="max-w-5xl mx-auto">
+      <div ref={containerRef} className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-10">
           <div>
             <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold block mb-1">

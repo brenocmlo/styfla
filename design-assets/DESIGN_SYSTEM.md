@@ -11,7 +11,7 @@ Estritamente monocromático — sem tokens de tema em `@theme`, usados diretamen
 - Superfícies elevadas (cards, painéis): `bg-zinc-950` / `bg-[#080808]` / `bg-[#050505]`
 - Bordas: `border-white/10`, `border-white/15`, `border-white/20` (hairlines translúcidas, não cinza sólido)
 - Faixas IBJJF (só em `Badge`, nunca decorativo): branca, azul (`blue-600`), roxa (`purple-600`), marrom (`amber-900`), preta (com barra vermelha `red-600`, convenção real de grau IBJJF)
-- Estados de alerta (só em `apps/admin`, para severidade de estoque): `red-600` (esgotado/crítico), `amber-500` (aviso) — exceção funcional à regra de monocromia, não usado na loja
+- Estados de alerta (só nas rotas `/admin`, para severidade de estoque): `red-600` (esgotado/crítico), `amber-500` (aviso) — exceção funcional à regra de monocromia, não usado na loja
 
 ## Tipografia
 

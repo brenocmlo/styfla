@@ -1,11 +1,16 @@
+'use client';
+
 import React from 'react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const JOURNEY_STEPS = ['Família', 'Jiu-Jitsu', 'João', 'Alta Performance', 'Superação', 'Decisão', 'STYFLA'];
 
 export function BrandStorySection() {
+  const containerRef = useScrollReveal<HTMLDivElement>({ y: 20, stagger: 0.15 });
+
   return (
     <section className="py-20 px-6 border-t border-white/10 bg-zinc-950" id="historia">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div ref={containerRef} className="max-w-4xl mx-auto space-y-8">
         <div>
           <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold block mb-1">
             DE ONDE VIEMOS

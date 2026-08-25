@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex gap-3">
-          <Link href="/produtos">
+          <Link href="/admin/produtos">
             <Button variant="primary" size="sm" className="text-xs">
               + Cadastrar Rash Guard
             </Button>
@@ -184,7 +184,7 @@ export default function AdminDashboardPage() {
               </h2>
               <p className="text-xs text-zinc-400">Acompanhe e despache pedidos em tempo real</p>
             </div>
-            <Link href="/pedidos" className="text-xs font-bold text-[#00C08B] hover:underline">
+            <Link href="/admin/pedidos" className="text-xs font-bold text-[#00C08B] hover:underline">
               Ver Todos &rarr;
             </Link>
           </div>
@@ -224,7 +224,7 @@ export default function AdminDashboardPage() {
                     </td>
                     <td className="py-3 text-right">
                       {order.status === 'PAID' ? (
-                        <Link href="/pedidos">
+                        <Link href="/admin/pedidos">
                           <button className="px-2.5 py-1 rounded bg-[#E63946] text-white text-[10px] font-bold uppercase hover:bg-[#d62839] transition-colors cursor-pointer">
                             Despachar
                           </button>
@@ -275,7 +275,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <Link href="/estoque" className="pt-4">
+          <Link href="/admin/estoque" className="pt-4">
             <Button variant="outline" size="sm" className="w-full text-xs">
               Gerenciar Todo o Estoque &rarr;
             </Button>

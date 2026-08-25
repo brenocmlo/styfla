@@ -4,6 +4,7 @@ import React from 'react';
 import { useCart } from '@/hooks/useCart';
 import { ShoppingBag, User } from 'lucide-react';
 import Link from 'next/link';
+import { TrademarkBadge } from '@/components/brand/TrademarkBadge';
 
 export function Navbar() {
   const { totalItems, openCart } = useCart();
@@ -14,16 +15,22 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-3 group">
-            <img
-              src="/brand/symbol.png"
-              alt="STYFLA Icon"
-              className="h-6 w-auto object-contain brightness-100 group-hover:scale-105 transition-transform"
-            />
-            <img
-              src="/brand/logo.png"
-              alt="STYFLA"
-              className="h-6 w-auto object-contain brightness-100 group-hover:opacity-90 transition-opacity"
-            />
+            <span className="relative inline-flex">
+              <img
+                src="/brand/symbol.png"
+                alt="STYFLA Icon"
+                className="h-6 w-auto object-contain brightness-100 group-hover:scale-105 transition-transform"
+              />
+              <TrademarkBadge size="xs" className="absolute -top-1 -right-2 text-zinc-300" />
+            </span>
+            <span className="inline-flex items-start gap-0.5">
+              <img
+                src="/brand/logo.png"
+                alt="STYFLA"
+                className="h-6 w-auto object-contain brightness-100 group-hover:opacity-90 transition-opacity"
+              />
+              <TrademarkBadge size="xs" className="text-zinc-300" />
+            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-xs uppercase font-black tracking-widest text-zinc-400">
             <Link href="/#historia" className="hover:text-white transition-colors">Nossa História</Link>

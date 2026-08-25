@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { Button, Badge } from '@styfla/ui';
 import { PRODUCTS_DATA, type ProductDetail } from '@/lib/products';
 import { useCart } from '@/hooks/useCart';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { ShoppingBag } from 'lucide-react';
 
 export function RashGuardsSection() {
   const { addItem, openCart } = useCart();
   const [selectedRankFilter, setSelectedRankFilter] = useState<string>('ALL');
+  const gridRef = useScrollReveal<HTMLDivElement>({ y: 24, stagger: 0.08, start: 'top 90%' });
 
   const filteredProducts =
     selectedRankFilter === 'ALL'
@@ -85,7 +87,7 @@ export function RashGuardsSection() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.map((product) => (
           <Link
             key={product.id}

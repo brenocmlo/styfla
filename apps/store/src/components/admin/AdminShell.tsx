@@ -10,21 +10,24 @@ import {
   Boxes,
   TicketPercent,
   ExternalLink,
+  LogOut,
   Menu,
   X,
   ShieldCheck,
 } from 'lucide-react';
+import { logoutAdmin } from '@/app/admin/login/actions';
+import { TrademarkBadge } from '@/components/brand/TrademarkBadge';
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Pedidos & Envios', href: '/pedidos', icon: ShoppingBag, badge: '3' },
-    { name: 'Catálogo de Produtos', href: '/produtos', icon: Package },
-    { name: 'Estoque por SKU', href: '/estoque', icon: Boxes, alert: true },
-    { name: 'Cupons & Descontos', href: '/cupons', icon: TicketPercent },
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'Pedidos & Envios', href: '/admin/pedidos', icon: ShoppingBag, badge: '3' },
+    { name: 'Catálogo de Produtos', href: '/admin/produtos', icon: Package },
+    { name: 'Estoque por SKU', href: '/admin/estoque', icon: Boxes, alert: true },
+    { name: 'Cupons & Descontos', href: '/admin/cupons', icon: TicketPercent },
   ];
 
   return (
@@ -33,8 +36,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <aside className="hidden lg:flex w-64 flex-col bg-[#080808] border-r border-white/10 shrink-0 select-none">
         {/* Brand Logo */}
         <div className="p-6 border-b border-white/10 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/brand/logo.png" alt="STYFLA" className="h-6 w-auto object-contain" />
+          <Link href="/admin" className="flex items-center gap-2">
+            <span className="inline-flex items-start gap-0.5">
+              <img src="/brand/logo.png" alt="STYFLA" className="h-6 w-auto object-contain" />
+              <TrademarkBadge size="xs" className="text-zinc-400" />
+            </span>
             <span className="text-[9px] uppercase font-mono font-black bg-white text-black px-1.5 py-0.5 tracking-widest">
               ADMIN
             </span>
@@ -83,13 +89,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <a
-            href="http://localhost:3030"
+            href="/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full py-2.5 px-3 bg-zinc-900 hover:bg-white hover:text-black border border-white/20 text-xs font-black uppercase text-white transition-all cursor-pointer tracking-wider"
           >
             Abrir Loja Virtual <ExternalLink className="w-3.5 h-3.5" />
           </a>
+
+          <form action={logoutAdmin}>
+            <button
+              type="submit"
+              className="flex items-center justify-center gap-2 w-full py-2.5 px-3 bg-transparent hover:bg-white/5 border border-white/10 text-xs font-black uppercase text-zinc-400 hover:text-white transition-all cursor-pointer tracking-wider"
+            >
+              Sair <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </form>
         </div>
       </aside>
 
