@@ -46,8 +46,41 @@ export default function ProductDetailPage() {
     router.push('/checkout');
   };
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://styfla.com.br';
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: product.images.map((img) => (img.startsWith('http') ? img : `${siteUrl}${img}`)),
+    description: product.description,
+    sku: selectedVariant.id,
+    brand: {
+      '@type': 'Brand',
+      name: 'STYFLA',
+    },
+    offers: {
+      '@type': 'Offer',
+      url: `${siteUrl}/produto/${product.slug}`,
+      priceCurrency: 'BRL',
+      price: product.pixPrice.toFixed(2),
+      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      itemCondition: 'https://schema.org/NewCondition',
+      availability: selectedVariant.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      seller: {
+        '@type': 'Organization',
+        name: 'STYFLA',
+      },
+    },
+  };
+
   return (
     <div className="min-h-screen bg-[#000000] text-[#FFFFFF] pb-24">
+      {/* Schema.org JSON-LD para Rich Snippets no Google */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+
       {/* Top Breadcrumb & Back */}
       <div className="max-w-7xl mx-auto px-6 py-4 border-b border-white/10 flex items-center justify-between text-xs text-zinc-400">
         <a href="/" className="flex items-center gap-1.5 hover:text-white transition-colors uppercase font-bold text-[11px]">

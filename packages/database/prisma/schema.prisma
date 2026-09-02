@@ -70,6 +70,7 @@ model Address {
   id           String   @id @default(cuid())
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String?  // Ex: "Minha Casa", "Academia"
   recipient    String
   zipCode      String   // CEP
   street       String

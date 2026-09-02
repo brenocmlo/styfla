@@ -2,14 +2,13 @@
 
 import React, { useState } from 'react';
 import { Truck } from 'lucide-react';
-import { ShippingService } from '@styfla/services';
 import type { ShippingQuote } from '@styfla/types';
 
 interface ProductShippingCalculatorProps {
   weightGrams?: number;
 }
 
-export function ProductShippingCalculator({ weightGrams = 250 }: ProductShippingCalculatorProps) {
+export function ProductShippingCalculator({ weightGrams = 260 }: ProductShippingCalculatorProps) {
   const [zipCode, setZipCode] = useState('');
   const [shippingQuotes, setShippingQuotes] = useState<ShippingQuote[]>([]);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -18,17 +17,29 @@ export function ProductShippingCalculator({ weightGrams = 250 }: ProductShipping
   const handleCalculateShipping = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (zipCode.replace(/\D/g, '').length !== 8) {
+    const cleanCep = zipCode.replace(/\D/g, '');
+
+    if (cleanCep.length !== 8) {
       setError('Digite um CEP válido com 8 dígitos.');
       return;
     }
 
     setIsCalculating(true);
     try {
-      const quotes = await ShippingService.calculateQuote(zipCode, weightGrams);
-      setShippingQuotes(quotes);
+      const res = await fetch('/api/shipping/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zipCode: cleanCep, weightG: weightGrams }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.quotes) {
+        setShippingQuotes(data.quotes);
+      } else {
+        setError(data.error || 'Não foi possível calcular o frete para este CEP.');
+      }
     } catch {
-      setError('Não foi possível calcular o frete para este CEP.');
+      setError('Falha de conexão ao calcular o frete.');
     } finally {
       setIsCalculating(false);
     }
@@ -37,7 +48,7 @@ export function ProductShippingCalculator({ weightGrams = 250 }: ProductShipping
   return (
     <div className="p-5 bg-zinc-950 border border-white/10 space-y-3">
       <span className="text-xs font-bold uppercase text-white flex items-center gap-1.5 tracking-wider">
-        <Truck className="w-4 h-4 text-white" /> Calcular Frete e Prazo de Entrega
+        <Truck className="w-4 h-4 text-white" /> Calcular Frete (Melhor Envio / Correios)
       </span>
 
       <form onSubmit={handleCalculateShipping} className="flex gap-2">
@@ -58,7 +69,7 @@ export function ProductShippingCalculator({ weightGrams = 250 }: ProductShipping
         </button>
       </form>
 
-      {error && <p className="text-xs text-zinc-300 font-medium">{error}</p>}
+      {error && <p className="text-xs text-red-300 font-medium">{error}</p>}
 
       {shippingQuotes.length > 0 && (
         <div className="space-y-2 pt-2 border-t border-white/10 font-mono">
@@ -66,7 +77,7 @@ export function ProductShippingCalculator({ weightGrams = 250 }: ProductShipping
             <div key={q.serviceId} className="flex items-center justify-between text-xs p-2.5 bg-black border border-white/10">
               <div>
                 <span className="font-bold text-white block uppercase">{q.name}</span>
-                <span className="text-[10px] text-zinc-400">Até {q.deliveryDays} dias úteis</span>
+                <span className="text-[10px] text-zinc-400">Entrega estimada: {q.deliveryDays} dias úteis</span>
               </div>
               <span className="font-black text-white">R$ {q.price.toFixed(2).replace('.', ',')}</span>
             </div>

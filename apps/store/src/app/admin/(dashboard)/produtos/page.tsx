@@ -6,24 +6,22 @@ import {
   Package,
   Plus,
   Search,
-  Filter,
   Edit2,
   Trash2,
   Check,
   X,
   ShieldCheck,
-  Image as ImageIcon,
+  Tag,
 } from 'lucide-react';
 
 interface AdminProduct {
   id: string;
   name: string;
   category: string;
+  color: 'PRETO' | 'AZUL' | 'BRANCO';
   price: number;
   pixPrice: number;
   totalStock: number;
-  ibjjfRank: 'white-belt' | 'blue-belt' | 'purple-belt' | 'brown-belt' | 'black-belt';
-  ibjjfText: string;
   isActive: boolean;
   image: string;
 }
@@ -31,99 +29,187 @@ interface AdminProduct {
 const INITIAL_PRODUCTS: AdminProduct[] = [
   {
     id: 'p1',
-    name: 'Rash Guard Stealth 2.0 (No-Gi Pro)',
-    category: 'Competição No-Gi',
+    name: 'Rash Guard Stealth Black (No-Gi Pro)',
+    category: 'Rash Guards',
+    color: 'PRETO',
     price: 219.9,
     pixPrice: 197.91,
-    totalStock: 70,
-    ibjjfRank: 'black-belt',
-    ibjjfText: 'Faixa Preta',
+    totalStock: 66,
     isActive: true,
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=80',
+    image: '/products/rash-guard-preta-frente.jpg',
   },
   {
     id: 'p2',
-    name: 'Rash Guard Ranked IBJJF (Faixa Azul)',
-    category: 'Graduação Oficial',
-    price: 199.9,
-    pixPrice: 179.91,
+    name: 'Rash Guard Velocity Blue (No-Gi Pro)',
+    category: 'Rash Guards',
+    color: 'AZUL',
+    price: 219.9,
+    pixPrice: 197.91,
     totalStock: 44,
-    ibjjfRank: 'blue-belt',
-    ibjjfText: 'Faixa Azul',
     isActive: true,
-    image: 'https://images.unsplash.com/photo-1549476464-37392f717541?w=200&auto=format&fit=crop&q=80',
+    image: '/products/rash-guard-azul-frente.jpg',
   },
   {
     id: 'p3',
-    name: 'Rash Guard Ranked IBJJF (Faixa Roxa)',
-    category: 'Graduação Oficial',
-    price: 199.9,
-    pixPrice: 179.91,
-    totalStock: 28,
-    ibjjfRank: 'purple-belt',
-    ibjjfText: 'Faixa Roxa',
+    name: 'Conjunto No-Gi Stealth Black (Rash + Short)',
+    category: 'Conjuntos',
+    color: 'PRETO',
+    price: 359.9,
+    pixPrice: 323.91,
+    totalStock: 37,
     isActive: true,
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&auto=format&fit=crop&q=80',
+    image: '/products/rash-guard-preta-frente.jpg',
   },
   {
     id: 'p4',
-    name: 'Rash Guard Ranked IBJJF (Faixa Marrom)',
-    category: 'Graduação Oficial',
-    price: 199.9,
-    pixPrice: 179.91,
-    totalStock: 24,
-    ibjjfRank: 'brown-belt',
-    ibjjfText: 'Faixa Marrom',
+    name: 'Conjunto No-Gi Velocity Blue (Rash + Short)',
+    category: 'Conjuntos',
+    color: 'AZUL',
+    price: 359.9,
+    pixPrice: 323.91,
+    totalStock: 30,
     isActive: true,
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&auto=format&fit=crop&q=80',
+    image: '/products/rash-guard-azul-frente.jpg',
+  },
+  {
+    id: 'p5',
+    name: 'Short STYFLA Preto (Fight Shorts)',
+    category: 'Shorts',
+    color: 'PRETO',
+    price: 179.9,
+    pixPrice: 161.91,
+    totalStock: 46,
+    isActive: true,
+    image: '/products/short-preto.jpg',
+  },
+  {
+    id: 'p6',
+    name: 'Short STYFLA Branco/Azul (Fight Shorts)',
+    category: 'Shorts',
+    color: 'AZUL',
+    price: 179.9,
+    pixPrice: 161.91,
+    totalStock: 36,
+    isActive: true,
+    image: '/products/short-branco-frente.jpg',
+  },
+  {
+    id: 'p7',
+    name: 'Kimono STYFLA // ORIGIN_001',
+    category: 'Kimonos',
+    color: 'PRETO',
+    price: 599.9,
+    pixPrice: 539.91,
+    totalStock: 58,
+    isActive: true,
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=80',
   },
 ];
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<AdminProduct[]>(INITIAL_PRODUCTS);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
 
-  // Form State para novo produto
-  const [newProduct, setNewProduct] = useState({
+  // Form State para novo produto ou edição
+  const [formState, setFormState] = useState({
     name: '',
-    category: 'Competição No-Gi',
-    price: 199.9,
-    pixPrice: 179.91,
-    ibjjfRank: 'black-belt' as const,
-    ibjjfText: 'Faixa Preta',
-    composition: '85% Poliamida / 15% Elastano',
+    category: 'Rash Guards',
+    color: 'PRETO' as 'PRETO' | 'AZUL' | 'BRANCO',
+    price: 219.9,
+    pixPrice: 197.91,
     stockP: 10,
     stockM: 15,
     stockG: 12,
     stockGG: 8,
+    image: '/products/rash-guard-preta-frente.jpg',
   });
 
-  const handleCreateProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-    const total = Number(newProduct.stockP) + Number(newProduct.stockM) + Number(newProduct.stockG) + Number(newProduct.stockGG);
-    
-    const created: AdminProduct = {
-      id: `p-${Date.now()}`,
-      name: newProduct.name,
-      category: newProduct.category,
-      price: Number(newProduct.price),
-      pixPrice: Number(newProduct.pixPrice),
-      totalStock: total,
-      ibjjfRank: newProduct.ibjjfRank,
-      ibjjfText: newProduct.ibjjfText,
-      isActive: true,
-      image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=80',
-    };
+  const handleOpenCreate = () => {
+    setEditingProduct(null);
+    setFormState({
+      name: '',
+      category: 'Rash Guards',
+      color: 'PRETO',
+      price: 219.9,
+      pixPrice: 197.91,
+      stockP: 10,
+      stockM: 15,
+      stockG: 12,
+      stockGG: 8,
+      image: '/products/rash-guard-preta-frente.jpg',
+    });
+    setIsModalOpen(true);
+  };
 
-    setProducts([created, ...products]);
+  const handleOpenEdit = (prod: AdminProduct) => {
+    setEditingProduct(prod);
+    setFormState({
+      name: prod.name,
+      category: prod.category,
+      color: prod.color,
+      price: prod.price,
+      pixPrice: prod.pixPrice,
+      stockP: Math.floor(prod.totalStock / 4),
+      stockM: Math.floor(prod.totalStock / 4),
+      stockG: Math.floor(prod.totalStock / 4),
+      stockGG: Math.floor(prod.totalStock / 4),
+      image: prod.image,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSaveProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    const total = Number(formState.stockP) + Number(formState.stockM) + Number(formState.stockG) + Number(formState.stockGG);
+
+    if (editingProduct) {
+      setProducts(
+        products.map((p) =>
+          p.id === editingProduct.id
+            ? {
+                ...p,
+                name: formState.name,
+                category: formState.category,
+                color: formState.color,
+                price: Number(formState.price),
+                pixPrice: Number(formState.pixPrice),
+                totalStock: total,
+                image: formState.image,
+              }
+            : p
+        )
+      );
+    } else {
+      const created: AdminProduct = {
+        id: `p-${Date.now()}`,
+        name: formState.name,
+        category: formState.category,
+        color: formState.color,
+        price: Number(formState.price),
+        pixPrice: Number(formState.pixPrice),
+        totalStock: total,
+        isActive: true,
+        image: formState.image,
+      };
+      setProducts([created, ...products]);
+    }
+
     setIsModalOpen(false);
+  };
+
+  const toggleStatus = (id: string) => {
+    setProducts(
+      products.map((p) => (p.id === id ? { ...p, isActive: !p.isActive } : p))
+    );
   };
 
   const filtered = products.filter(
     (p) =>
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchTerm.toLowerCase())
+      p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.color.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -132,81 +218,85 @@ export default function AdminProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black uppercase tracking-tight text-white">
-            Catálogo de Rash Guards & Produtos
+            Catálogo de Rash Guards, Conjuntos & Shorts
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Cadastre novas coleções, configure grades de tamanho e preços no PIX.
+            Gestão direta do catálogo de peças nas cores Preto e Azul com preços no PIX.
           </p>
         </div>
 
         <Button
           variant="primary"
           size="sm"
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 text-xs font-bold"
+          onClick={handleOpenCreate}
+          className="flex items-center gap-1.5 text-xs font-bold h-11 px-5 cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Cadastrar Novo Produto
         </Button>
       </div>
 
       {/* Barra de Busca e Filtros */}
-      <div className="p-4 rounded-xl bg-[#111317] border border-white/10 flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="p-4 bg-zinc-950 border border-white/10 flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
-            placeholder="Buscar por nome ou categoria..."
+            placeholder="Buscar por nome, cor ou categoria..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-zinc-900 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-[#E63946]"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-black border border-white/15 text-white placeholder-zinc-500 focus:outline-none focus:border-white font-sans"
           />
         </div>
 
         <div className="text-xs text-zinc-400 font-mono">
-          Exibindo <strong>{filtered.length}</strong> produtos
+          Exibindo <strong>{filtered.length}</strong> itens no catálogo
         </div>
       </div>
 
       {/* Tabela de Produtos */}
-      <div className="p-6 rounded-xl bg-[#111317] border border-white/10 overflow-x-auto shadow-xl">
+      <div className="p-6 bg-zinc-950 border border-white/10 overflow-x-auto shadow-xl">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
             <tr className="border-b border-white/10 text-zinc-400 font-bold uppercase text-[10px] tracking-wider">
               <th className="pb-3">Produto</th>
               <th className="pb-3">Categoria</th>
-              <th className="pb-3">Graduação IBJJF</th>
+              <th className="pb-3">Cor da Coleção</th>
               <th className="pb-3">Preço PIX / Cartão</th>
               <th className="pb-3">Estoque Total</th>
               <th className="pb-3">Status</th>
               <th className="pb-3 text-right">Ações</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5 text-zinc-300">
+          <tbody className="divide-y divide-white/5 text-zinc-300 font-sans">
             {filtered.map((prod) => (
               <tr key={prod.id} className="hover:bg-white/[0.02]">
                 <td className="py-3.5 flex items-center gap-3">
                   <img
                     src={prod.image}
                     alt={prod.name}
-                    className="w-10 h-12 object-cover rounded bg-zinc-900 border border-white/10"
+                    className="w-10 h-12 object-cover bg-black border border-white/10 shrink-0"
                   />
                   <div>
-                    <h3 className="font-bold text-white text-xs">{prod.name}</h3>
+                    <h3 className="font-bold text-white text-xs uppercase">{prod.name}</h3>
                     <span className="text-[10px] font-mono text-zinc-500">ID: {prod.id}</span>
                   </div>
                 </td>
-                <td className="py-3.5 text-zinc-300">{prod.category}</td>
+                <td className="py-3.5 text-zinc-300 font-bold">{prod.category}</td>
                 <td className="py-3.5">
-                  <Badge variant={prod.ibjjfRank} className="text-[9px]">
-                    {prod.ibjjfText}
-                  </Badge>
+                  <span className={`px-2 py-0.5 text-[10px] font-mono font-bold border ${
+                    prod.color === 'PRETO'
+                      ? 'bg-black text-white border-white/30'
+                      : 'bg-zinc-900 text-zinc-200 border-white/20'
+                  }`}>
+                    {prod.color}
+                  </span>
                 </td>
                 <td className="py-3.5">
-                  <span className="font-bold text-[#00C08B] block">
+                  <span className="font-bold text-white font-mono block">
                     R$ {prod.pixPrice.toFixed(2).replace('.', ',')}
                   </span>
-                  <span className="text-[10px] text-zinc-400">
-                    R$ {prod.price.toFixed(2).replace('.', ',')}
+                  <span className="text-[10px] text-zinc-400 font-mono">
+                    Cartão: R$ {prod.price.toFixed(2).replace('.', ',')}
                   </span>
                 </td>
                 <td className="py-3.5">
@@ -215,17 +305,28 @@ export default function AdminProductsPage() {
                   </span>
                 </td>
                 <td className="py-3.5">
-                  <Badge variant={prod.isActive ? 'pix' : 'default'} className="text-[9px]">
-                    {prod.isActive ? 'Ativo' : 'Pausado'}
-                  </Badge>
+                  <button
+                    onClick={() => toggleStatus(prod.id)}
+                    className={`px-2 py-0.5 text-[10px] font-bold uppercase border cursor-pointer ${
+                      prod.isActive
+                        ? 'bg-white text-black border-white'
+                        : 'bg-black text-zinc-500 border-white/10'
+                    }`}
+                  >
+                    {prod.isActive ? 'Ativo na Loja' : 'Pausado'}
+                  </button>
                 </td>
                 <td className="py-3.5 text-right space-x-2">
-                  <button className="p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors cursor-pointer">
-                    <Edit2 className="w-3.5 h-3.5" />
+                  <button
+                    onClick={() => handleOpenEdit(prod)}
+                    className="px-2.5 py-1 bg-zinc-900 border border-white/20 text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[11px] font-bold uppercase"
+                  >
+                    Editar
                   </button>
                   <button
                     onClick={() => setProducts(products.filter((p) => p.id !== prod.id))}
-                    className="p-1.5 rounded bg-zinc-800 hover:bg-red-950/80 text-zinc-400 hover:text-red-400 transition-colors cursor-pointer"
+                    className="p-1.5 bg-zinc-900 border border-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                    title="Excluir produto"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -236,142 +337,140 @@ export default function AdminProductsPage() {
         </table>
       </div>
 
-      {/* Modal de Criação de Produto */}
+      {/* Modal de Criação / Edição de Produto */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-2xl bg-[#16181D] border border-white/10 rounded-2xl p-6 shadow-2xl text-[#F4F4F6] max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-xl bg-zinc-950 border border-white/20 p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
               <div>
-                <h3 className="text-lg font-black uppercase tracking-tight text-white flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-[#E63946]" /> Cadastrar Nova Rash Guard
+                <h3 className="text-base font-black uppercase tracking-tight text-white flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-white" />
+                  {editingProduct ? 'Editar Produto' : 'Cadastrar Novo Produto'}
                 </h3>
-                <p className="text-xs text-zinc-400">Preencha as especificações técnicas e estoque inicial da peça</p>
+                <p className="text-xs text-zinc-400">Configure nome, coleção (Preto/Azul), preços e estoque</p>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="p-1 text-zinc-400 hover:text-white">
+              <button onClick={() => setIsModalOpen(false)} className="p-1 text-zinc-400 hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateProduct} className="space-y-4 pt-4">
+            <form onSubmit={handleSaveProduct} className="space-y-4 pt-4">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-zinc-400">Nome do Produto *</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Nome do Produto *</label>
                 <input
                   required
-                  placeholder="Ex: Rash Guard Ranked IBJJF (Faixa Preta Pro)"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-zinc-900 border border-white/10 text-white"
+                  placeholder="Ex: Rash Guard Stealth Black (No-Gi Pro)"
+                  value={formState.name}
+                  onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+                  className="w-full h-11 px-3 py-2 text-xs bg-black border border-white/20 text-white focus:outline-none focus:border-white"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold uppercase text-zinc-400">Categoria</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Categoria</label>
                   <select
-                    value={newProduct.category}
-                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-zinc-900 border border-white/10 text-white"
+                    value={formState.category}
+                    onChange={(e) => setFormState({ ...formState, category: e.target.value })}
+                    className="w-full h-11 px-3 py-2 text-xs bg-black border border-white/20 text-white focus:outline-none focus:border-white"
                   >
-                    <option>Competição No-Gi</option>
-                    <option>Graduação Oficial</option>
-                    <option>Coleção Street / Lifestyle</option>
-                    <option>No-Gi Shorts</option>
+                    <option>Rash Guards</option>
+                    <option>Conjuntos</option>
+                    <option>Shorts</option>
+                    <option>Kimonos</option>
                   </select>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold uppercase text-zinc-400">Graduação IBJJF</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Cor da Coleção</label>
                   <select
-                    value={newProduct.ibjjfRank}
-                    onChange={(e) => {
-                      const rank = e.target.value as any;
-                      const textMap: any = {
-                        'white-belt': 'Faixa Branca',
-                        'blue-belt': 'Faixa Azul',
-                        'purple-belt': 'Faixa Roxa',
-                        'brown-belt': 'Faixa Marrom',
-                        'black-belt': 'Faixa Preta',
-                      };
-                      setNewProduct({ ...newProduct, ibjjfRank: rank, ibjjfText: textMap[rank] });
-                    }}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-zinc-900 border border-white/10 text-white"
+                    value={formState.color}
+                    onChange={(e) => setFormState({ ...formState, color: e.target.value as any })}
+                    className="w-full h-11 px-3 py-2 text-xs bg-black border border-white/20 text-white focus:outline-none focus:border-white"
                   >
-                    <option value="white-belt">Faixa Branca</option>
-                    <option value="blue-belt">Faixa Azul</option>
-                    <option value="purple-belt">Faixa Roxa</option>
-                    <option value="brown-belt">Faixa Marrom</option>
-                    <option value="black-belt">Faixa Preta</option>
+                    <option value="PRETO">Coleção Preta</option>
+                    <option value="AZUL">Coleção Azul</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold uppercase text-zinc-400">Preço Regular (R$) *</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Preço Regular (R$) *</label>
                   <input
                     type="number"
                     step="0.01"
-                    value={newProduct.price}
+                    value={formState.price}
                     onChange={(e) => {
                       const p = Number(e.target.value);
-                      setNewProduct({ ...newProduct, price: p, pixPrice: +(p * 0.9).toFixed(2) });
+                      setFormState({ ...formState, price: p, pixPrice: +(p * 0.9).toFixed(2) });
                     }}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-zinc-900 border border-white/10 text-white"
+                    className="w-full h-11 px-3 py-2 text-xs bg-black border border-white/20 text-white font-mono"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold uppercase text-[#00C08B]">Preço com Desconto PIX (R$)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-white">Preço 10% OFF no PIX (R$)</label>
                   <input
                     type="number"
                     step="0.01"
-                    value={newProduct.pixPrice}
-                    onChange={(e) => setNewProduct({ ...newProduct, pixPrice: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-zinc-900 border border-emerald-800/40 text-[#00C08B] font-bold"
+                    value={formState.pixPrice}
+                    onChange={(e) => setFormState({ ...formState, pixPrice: Number(e.target.value) })}
+                    className="w-full h-11 px-3 py-2 text-xs bg-black border border-white text-white font-mono font-bold"
                   />
                 </div>
               </div>
 
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">URL da Foto Principal</label>
+                <input
+                  type="text"
+                  value={formState.image}
+                  onChange={(e) => setFormState({ ...formState, image: e.target.value })}
+                  className="w-full h-11 px-3 py-2 text-xs bg-black border border-white/20 text-white font-mono"
+                />
+              </div>
+
               {/* Grade de Estoque */}
-              <div className="p-4 rounded-xl bg-zinc-900/60 border border-white/5 space-y-3">
-                <label className="text-[11px] font-bold uppercase text-white block">
-                  Estoque Inicial por Tamanho
+              <div className="p-4 bg-black border border-white/10 space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-white block">
+                  Estoque por Tamanho
                 </label>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-2">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-zinc-400 font-bold">Tam P</span>
+                    <span className="text-[10px] text-zinc-400 font-bold block">Tam P</span>
                     <input
                       type="number"
-                      value={newProduct.stockP}
-                      onChange={(e) => setNewProduct({ ...newProduct, stockP: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 text-xs rounded bg-zinc-800 border border-white/10 text-white"
+                      value={formState.stockP}
+                      onChange={(e) => setFormState({ ...formState, stockP: Number(e.target.value) })}
+                      className="w-full px-2 py-1.5 text-xs bg-zinc-900 border border-white/10 text-white font-mono"
                     />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-zinc-400 font-bold">Tam M</span>
+                    <span className="text-[10px] text-zinc-400 font-bold block">Tam M</span>
                     <input
                       type="number"
-                      value={newProduct.stockM}
-                      onChange={(e) => setNewProduct({ ...newProduct, stockM: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 text-xs rounded bg-zinc-800 border border-white/10 text-white"
+                      value={formState.stockM}
+                      onChange={(e) => setFormState({ ...formState, stockM: Number(e.target.value) })}
+                      className="w-full px-2 py-1.5 text-xs bg-zinc-900 border border-white/10 text-white font-mono"
                     />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-zinc-400 font-bold">Tam G</span>
+                    <span className="text-[10px] text-zinc-400 font-bold block">Tam G</span>
                     <input
                       type="number"
-                      value={newProduct.stockG}
-                      onChange={(e) => setNewProduct({ ...newProduct, stockG: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 text-xs rounded bg-zinc-800 border border-white/10 text-white"
+                      value={formState.stockG}
+                      onChange={(e) => setFormState({ ...formState, stockG: Number(e.target.value) })}
+                      className="w-full px-2 py-1.5 text-xs bg-zinc-900 border border-white/10 text-white font-mono"
                     />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-zinc-400 font-bold">Tam GG</span>
+                    <span className="text-[10px] text-zinc-400 font-bold block">Tam GG</span>
                     <input
                       type="number"
-                      value={newProduct.stockGG}
-                      onChange={(e) => setNewProduct({ ...newProduct, stockGG: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 text-xs rounded bg-zinc-800 border border-white/10 text-white"
+                      value={formState.stockGG}
+                      onChange={(e) => setFormState({ ...formState, stockGG: Number(e.target.value) })}
+                      className="w-full px-2 py-1.5 text-xs bg-zinc-900 border border-white/10 text-white font-mono"
                     />
                   </div>
                 </div>
@@ -381,12 +480,12 @@ export default function AdminProductsPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs text-zinc-400 hover:text-white"
+                  className="px-4 py-2 text-xs text-zinc-400 hover:text-white cursor-pointer"
                 >
                   Cancelar
                 </button>
-                <Button type="submit" variant="primary" size="sm">
-                  Salvar Rash Guard
+                <Button type="submit" variant="primary" size="sm" className="font-black h-11 px-6">
+                  {editingProduct ? 'Salvar Alterações' : 'Cadastrar Peça'}
                 </Button>
               </div>
             </form>

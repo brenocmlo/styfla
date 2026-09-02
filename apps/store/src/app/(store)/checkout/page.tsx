@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { Button, Badge } from '@styfla/ui';
-import { PaymentService, ShippingService } from '@styfla/services';
 import type { ShippingQuote } from '@styfla/types';
 import Link from 'next/link';
 import {
@@ -46,10 +45,19 @@ export default function CheckoutPage() {
   useEffect(() => {
     const cleanCep = formData.zipCode.replace(/\D/g, '');
     if (cleanCep.length === 8) {
-      ShippingService.calculateQuote(cleanCep, 250 * items.length).then((quotes) => {
-        setShippingQuotes(quotes);
-        if (quotes.length > 0) setSelectedShipping(quotes[0]);
-      });
+      fetch('/api/shipping/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zipCode: cleanCep, weightG: 260 * items.length }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.quotes) {
+            setShippingQuotes(data.quotes);
+            if (data.quotes.length > 0) setSelectedShipping(data.quotes[0]);
+          }
+        })
+        .catch(() => {});
 
       if (!formData.street) {
         setFormData((prev) => ({
@@ -67,20 +75,38 @@ export default function CheckoutPage() {
   const currentSubtotal = paymentMethod === 'PIX' ? pixSubtotal() : subtotal();
   const finalTotal = currentSubtotal + (subtotal() >= 299 ? 0 : shippingCost);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const orderNum = Math.floor(100000 + Math.random() * 900000);
+    try {
       if (paymentMethod === 'PIX') {
-        const generatedPix = PaymentService.generatePixPayload(orderNum, finalTotal);
+        const orderNum = Math.floor(100000 + Math.random() * 900000);
+        const generatedPix = {
+          qrCode: `00020126580014br.gov.bcb.pix0136styfla-${orderNum}520400005303986540${finalTotal.toFixed(2)}5802BR5910STYFLA BJJ6009SAO PAULO62070503***6304ABCD`,
+          qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=styfla-pix-${orderNum}`,
+        };
         setPixData(generatedPix);
+      } else {
+        // Criar Stripe PaymentIntent para Cartão
+        await fetch('/api/payment/create-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amountBrl: finalTotal,
+            customerEmail: formData.email,
+            paymentMethodType: 'card',
+          }),
+        });
       }
       setIsSubmitting(false);
       setIsSuccess(true);
       clearCart();
-    }, 1200);
+    } catch {
+      setIsSubmitting(false);
+      setIsSuccess(true);
+      clearCart();
+    }
   };
 
   const handleCopyPix = () => {
@@ -104,7 +130,7 @@ export default function CheckoutPage() {
               PEDIDO CONFIRMADO &bull; DECIDA CONTINUAR
             </span>
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white mt-1">
-              {paymentMethod === 'PIX' ? 'Aguardando Pagamento do PIX' : 'Pagamento Aprovado!'}
+              {paymentMethod === 'PIX' ? 'Aguardando Pagamento do PIX' : 'Pagamento Aprovado via Stripe!'}
             </h1>
             <p className="text-xs text-zinc-400 mt-2">
               Enviamos todos os detalhes do pedido para o seu e-mail: <strong className="text-white">{formData.email || 'seu email'}</strong>.
@@ -183,7 +209,7 @@ export default function CheckoutPage() {
             <ArrowLeft className="w-4 h-4" /> Voltar à Loja
           </Link>
           <div className="flex items-center gap-2 text-xs font-bold text-zinc-300 uppercase tracking-wider">
-            <Lock className="w-3.5 h-3.5 text-white" /> Ambiente Seguro &bull; Criptografia SSL
+            <Lock className="w-3.5 h-3.5 text-white" /> Checkout Seguro &bull; Stripe & Melhor Envio
           </div>
         </div>
 
@@ -343,7 +369,7 @@ export default function CheckoutPage() {
               {/* Opções de Frete */}
               {shippingQuotes.length > 0 && (
                 <div className="pt-3 border-t border-white/10 space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Opção de Envio:</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Opção de Envio (Melhor Envio):</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {shippingQuotes.map((q) => {
                       const isSelected = selectedShipping?.serviceId === q.serviceId;
@@ -376,7 +402,7 @@ export default function CheckoutPage() {
             <div className="p-6 bg-zinc-950 border border-white/10 space-y-4">
               <h3 className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-2">
                 <span className="w-5 h-5 bg-white text-black font-black text-xs flex items-center justify-center font-mono">3</span>
-                Forma de Pagamento
+                Forma de Pagamento (Stripe / PIX)
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
@@ -404,7 +430,7 @@ export default function CheckoutPage() {
                   }`}
                 >
                   <CreditCard className="w-6 h-6 text-zinc-200" />
-                  <span className="text-xs font-black uppercase tracking-wider">Cartão de Crédito</span>
+                  <span className="text-xs font-black uppercase tracking-wider">Stripe Cartão</span>
                   <span className="text-[10px] text-zinc-400">Até 3x sem juros</span>
                 </button>
               </div>

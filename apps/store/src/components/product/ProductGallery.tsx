@@ -1,12 +1,11 @@
 'use client';
 
 import { Badge } from '@styfla/ui';
-import type { ProductDetail } from '@/lib/products';
 
 interface ProductGalleryProps {
   images: string[];
   productName: string;
-  ibjjfRank: ProductDetail['ibjjfRank'];
+  ibjjfRank: string;
   ibjjfText: string;
   selectedImage: string;
   onSelectImage: (image: string) => void;
@@ -15,7 +14,6 @@ interface ProductGalleryProps {
 export function ProductGallery({
   images,
   productName,
-  ibjjfRank,
   ibjjfText,
   selectedImage,
   onSelectImage,
@@ -25,8 +23,10 @@ export function ProductGallery({
       <div className="relative aspect-[4/5] bg-zinc-950 rounded-none overflow-hidden border border-white/15 shadow-2xl">
         <img src={selectedImage} alt={productName} className="w-full h-full object-cover" />
         <div className="absolute top-4 left-4 flex flex-col gap-2">
-          <Badge variant="white">IBJJF APPROVED</Badge>
-          <Badge variant={ibjjfRank}>{ibjjfText}</Badge>
+          <Badge variant="white">NO-GI PERFORMANCE</Badge>
+          <Badge variant="outline" className="bg-black/80 backdrop-blur-sm text-white">
+            {ibjjfText || 'High Performance'}
+          </Badge>
         </div>
       </div>
 

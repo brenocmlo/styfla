@@ -8,3 +8,4 @@ allowBuilds:
   'prisma': true
   '@turbo/darwin-64': true
   'unrs-resolver': true
+  'esbuild': true

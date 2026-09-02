@@ -1,4 +1,4 @@
-export type Size = 'PP' | 'P' | 'M' | 'G' | 'GG' | '2XG' | '3XG';
+export type Size = 'PP' | 'P' | 'M' | 'G' | 'GG' | '2XG' | '3XG' | 'A0' | 'A1' | 'A2' | 'A3' | 'A4';
 
 export type IbjjfBelt = 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK' | 'NONE';
 
