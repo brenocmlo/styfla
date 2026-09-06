@@ -13,7 +13,7 @@ echo "🐳 Subindo/Atualizando container da aplicação e do PostgreSQL..."
 docker compose -f docker/docker-compose.yml up -d --build
 
 echo "🗄️ Executando migrações do banco de dados (Prisma)..."
-docker compose -f docker/docker-compose.yml exec -T app pnpm --filter @styfla/database db:push
+docker compose -f docker/docker-compose.yml exec -T app pnpm db:push
 
 echo "🧹 Limpando imagens Docker antigas não utilizadas..."
 docker image prune -f

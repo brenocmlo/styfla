@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "buildCommand": "turbo run build --filter=@styfla/store",
-  "outputDirectory": "apps/store/.next"
+  "buildCommand": "pnpm build"
 }

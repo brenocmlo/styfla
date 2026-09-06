@@ -25,8 +25,8 @@ Todos os módulos, componentes React, hooks e serviços devem seguir estritament
 * **Regra:** Um arquivo, componente ou função deve ter **apenas um motivo para mudar**.
 * **Frontend:** Não misture lógica de requisição HTTP, validação de formulário e renderização visual no mesmo componente.
   * ❌ *Incorreto:* Um `ProductCard.tsx` que busca dados no banco, faz cálculo de parcelamento, valida estoque e renderiza o HTML.
-  * ✅ *Correto:* `ProductCard.tsx` apenas renderiza a UI recebendo dados via props; a lógica de cálculo fica em `@styfla/types` ou `@styfla/services`.
-* **Backend / Services:** A camada de banco (`packages/database`) apenas lida com persistência; a camada de serviços (`packages/services`) lida com regras de negócio e integrações de APIs.
+  * ✅ *Correto:* `ProductCard.tsx` apenas renderiza a UI recebendo dados via props; a lógica de cálculo fica em `@/types` ou `@/services`.
+* **Backend / Services:** A camada de banco (`prisma/` e `src/lib/db.ts`) apenas lida com persistência; a camada de serviços (`src/services/`) lida com regras de negócio e integrações de APIs.
 
 ### 1.2 O — Open/Closed Principle (Aberto para Extensão, Fechado para Modificação)
 * **Regra:** Entidades de software devem ser abertas para extensão, mas fechadas para modificação.
@@ -36,12 +36,12 @@ Todos os módulos, componentes React, hooks e serviços devem seguir estritament
 
 ### 1.3 L — Liskov Substitution Principle (Substituição de Liskov)
 * **Regra:** Objetos de um tipo base devem poder ser substituídos por objetos de seus subtipos sem quebrar a aplicação.
-* **Aplicação no Design System (`packages/ui`):**
+* **Aplicação no Design System (`src/components/ui`):**
   * Todo componente customizado que encapsula um elemento HTML nativo (ex: `ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>`) deve repassar todas as propriedades HTML padrão (`type`, `disabled`, `onClick`, `aria-*`, `ref`) sem comportamentos colaterais inesperados.
 
 ### 1.4 I — Interface Segregation Principle (Segregação de Interfaces)
 * **Regra:** Clientes não devem ser forçados a depender de interfaces ou tipos que não utilizam.
-* **Aplicação no TypeScript (`packages/types`):**
+* **Aplicação no TypeScript (`src/types`):**
   * Evite "Mega Interfaces" (ex: um `Product` gigantesco com 60 propriedades opcionais sendo passado para componentes que só precisam do título e do preço).
   * Crie DTOs e interfaces focadas:
     ```typescript
@@ -62,27 +62,27 @@ Todos os módulos, componentes React, hooks e serviços devem seguir estritament
 
 ### 1.5 D — Dependency Inversion Principle (Inversão de Dependência)
 * **Regra:** Módulos de alto nível não devem depender de módulos de baixo nível. Ambos devem depender de abstrações.
-* **Aplicação no Monorepo:**
-  * O app de Store (`apps/store`) e o de Checkout não devem chamar bibliotecas terceiras de pagamento (ex: `mercadopago` ou `stripe`) diretamente nas páginas.
-  * Ambas as aplicações devem depender de contratos genéricos exportados por `packages/services` (ex: `ShippingProviderInterface` e `PaymentGatewayInterface`).
+* **Aplicação no Projeto:**
+  * Páginas e componentes visuais não devem chamar SDKs de terceiros (ex: `stripe`) diretamente.
+  * O código deve depender de contratos e serviços isolados em `src/services` (ex: `StripePaymentService` e `MelhorEnvioService`).
 
 ---
 
 ## 2. Padrões GRASP (General Responsibility Assignment Software Patterns)
 
-Os 9 métodos **GRASP** regem a atribuição de responsabilidades em todo o monorepo:
+Os 9 métodos **GRASP** regem a atribuição de responsabilidades em todo o projeto:
 
 | Padrão GRASP | Descrição & Diretriz | Exemplo no Projeto Styfla |
 | :--- | :--- | :--- |
 | **1. Information Expert (Especialista na Informação)** | Atribua a responsabilidade ao módulo que possui as informações necessárias para executá-la. | O hook `useCart` calcula o subtotal e o progresso do Frete Grátis, pois ele detém a lista de itens e o threshold de R$ 299,00. |
 | **2. Creator (Criador)** | A entidade $A$ deve criar a entidade $B$ se $A$ contém, agrega ou usa intimamente $B$. | A camada de checkout gera o `OrderItem` a partir do `CartItem`, pois o pedido é o agregador principal da transação. |
-| **3. Low Coupling (Baixo Acoplamento)** | Mantenha as dependências entre módulos no nível mínimo necessário para facilitar manutenção e testes. | O pacote `packages/ui` é agnóstico a banco de dados e gateways; ele consome apenas tipos de `packages/types`. |
-| **4. High Cohesion (Alta Coesão)** | As responsabilidades de um módulo devem ser fortemente relacionadas e focadas em um único propósito. | `packages/services/shipping.ts` lida exclusivamente com cálculo e regras de postagem; nada de pagamentos ou renderização. |
+| **3. Low Coupling (Baixo Acoplamento)** | Mantenha as dependências entre módulos no nível mínimo necessário para facilitar manutenção e testes. | Os componentes de `src/components/ui` são agnósticos a banco de dados e gateways; eles consomem apenas tipos de `src/types`. |
+| **4. High Cohesion (Alta Coesão)** | As responsabilidades de um módulo devem ser fortemente relacionadas e focadas em um único propósito. | `src/services/shipping/melhorenvio.ts` lida exclusivamente com cálculo e regras de frete/etiquetas; nada de pagamentos ou renderização. |
 | **5. Controller** | Camada intermediária que orquestra as operações do sistema antes de repassar à UI ou ao banco. | Server Actions e rotas de API do Next.js atuam como controllers: recebem a requisição, validam com Zod, invocam o serviço e retornam o resultado. |
-| **6. Polymorphism (Polimorfismo)** | Trate comportamentos variantes através de tipos polimórficos em vez de estruturas condicionais explícitas. | Formas de pagamento (`PIX`, `CREDIT_CARD`, `BOLETO`) implementam o método `.processPayment()`, eliminando árvores de `switch/case`. |
-| **7. Pure Fabrication (Invenção Pura)** | Crie classes de utilidade para manter a alta coesão e baixo acoplamento quando o domínio não comportar a função. | Utilitários de composição CSS (`cn()`), helpers de formatação de moeda brasileira (`formatBRL()`) e geradores de Payload PIX. |
-| **8. Indirection (Indireção)** | Atribua responsabilidade a um objeto intermediário para mediar a comunicação entre dois componentes. | O pacote `packages/database/src/client.ts` encapsula a conexão do Prisma em um Singleton, mediando o acesso ao PostgreSQL para ambos os apps. |
-| **9. Protected Variations (Variações Protegidas)** | Identifique pontos de instabilidade externa e envolva-os em interfaces estáveis. | Se o gateway de frete mudar dos Correios para Melhor Envio ou Jadlog, apenas o adapter em `packages/services/src/shipping.ts` muda; o frontend permanece intocado. |
+| **6. Polymorphism (Polimorfismo)** | Trate comportamentos variantes através de tipos polimórficos em vez de estruturas condicionais explícitas. | Formas de pagamento (`PIX`, `CREDIT_CARD`) implementam rotinas específicas de liquidação, eliminando complexidade no fluxo principal. |
+| **7. Pure Fabrication (Invenção Pura)** | Crie classes de utilidade para manter a alta coesão e baixo acoplamento quando o domínio não comportar a função. | Utilitários de composição CSS (`cn()`), helpers de formatação de moeda brasileira e geradores de Payload PIX em `src/lib/utils.ts`. |
+| **8. Indirection (Indireção)** | Atribua responsabilidade a um objeto intermediário para mediar a comunicação entre dois componentes. | O arquivo `src/lib/db.ts` encapsula a conexão do Prisma em um Singleton, mediando o acesso ao PostgreSQL. |
+| **9. Protected Variations (Variações Protegidas)** | Identifique pontos de instabilidade externa e envolva-os em interfaces estáveis. | Se a API de logística mudar do Melhor Envio para outra transportadora, apenas o adapter em `src/services/shipping` muda; o frontend permanece intocado. |
 
 ---
 
@@ -95,10 +95,10 @@ Para garantir manutenibilidade e performance em larga escala, **qualquer compone
 |                         ARQUITETURA DE COMPONENTIZAÇÃO                          |
 +---------------------------------------------------------------------------------+
 |                                                                                 |
-|   1. UI Components (Agnósticos)      --> packages/ui (Button, Badge, Modal)     |
-|   2. Feature Components (Domínio)    --> apps/store/src/components (ProductCard)|
-|   3. State & Logic Containers (Hooks)--> apps/store/src/hooks (useCart)         |
-|   4. Page / Layout (Rotas Next.js)   --> apps/store/src/app (page.tsx)          |
+|   1. UI Components (Agnósticos)      --> src/components/ui (Button, Badge, etc.)|
+|   2. Feature Components (Domínio)    --> src/components/ (home, product, etc.)  |
+|   3. State & Logic Containers (Hooks)--> src/hooks/ (useCart)                   |
+|   4. Page / Layout (Rotas Next.js)   --> src/app/ (page.tsx, layout.tsx)        |
 |                                                                                 |
 +---------------------------------------------------------------------------------+
 ```
@@ -108,7 +108,7 @@ Para garantir manutenibilidade e performance em larga escala, **qualquer compone
    * Nenhum arquivo de componente deve exceder **250 linhas**.
    * Se um componente crescer demais, extraia subcomponentes (ex: `ProductCard` $\rightarrow$ `ProductCardGallery`, `ProductCardBadges`, `ProductCardActions`).
 2. **Presentational vs Container (Smart vs Dumb):**
-   * **Presentational (Dumb):** Fica em `packages/ui` ou pastas `/components`. Não acessa `fetch`, não conecta a bancos e não contém regras de negócio complexas. Apenas recebe props e dispara callbacks.
+   * **Presentational (Dumb):** Fica em `src/components/ui` ou pastas de apresentação. Não acessa `fetch`, não conecta a bancos e não contém regras de negócio complexas. Apenas recebe props e dispara callbacks.
    * **Container / Hook (Smart):** Gerencia estado, invoca mutations e passa os dados para os componentes visuais.
 3. **Imutabilidade e Funções Puras:**
    * Handlers e transformações de dados devem ser funções puras sem mutação direta de arrays/objetos.
