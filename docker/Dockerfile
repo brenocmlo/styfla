@@ -25,6 +25,7 @@ COPY --from=pruner /app/out/full/ .
 # Generate Prisma client and build standalone Next.js app
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV DOCKER_BUILD=1
 
 RUN pnpm --filter @styfla/database db:generate
 RUN pnpm --filter @styfla/store build
