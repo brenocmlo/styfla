@@ -5,6 +5,7 @@ import { useCart } from '@/hooks/useCart';
 import { Button, Badge } from '@styfla/ui';
 import type { ShippingQuote } from '@styfla/types';
 import Link from 'next/link';
+import { StripeCardSection } from '@/components/checkout/StripeCardSection';
 import {
   ShieldCheck,
   Zap,
@@ -15,6 +16,7 @@ import {
   CreditCard,
   QrCode,
   Lock,
+  Package,
 } from 'lucide-react';
 
 export default function CheckoutPage() {
@@ -41,6 +43,17 @@ export default function CheckoutPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [pixData, setPixData] = useState<{ qrCode: string; qrCodeUrl: string } | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Estados específicos do Stripe Cartão
+  const [cardHolderName, setCardHolderName] = useState('');
+  const [installments, setInstallments] = useState(1);
+  const [cardError, setCardError] = useState<string | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<{
+    orderNumber: string | number;
+    totalAmount: number;
+    email: string;
+    shippingCarrier: string;
+  } | null>(null);
 
   useEffect(() => {
     const cleanCep = formData.zipCode.replace(/\D/g, '');
@@ -77,6 +90,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCardError(null);
     setIsSubmitting(true);
 
     try {
@@ -87,25 +101,70 @@ export default function CheckoutPage() {
           qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=styfla-pix-${orderNum}`,
         };
         setPixData(generatedPix);
+        setConfirmedOrder({
+          orderNumber: orderNum,
+          totalAmount: finalTotal,
+          email: formData.email,
+          shippingCarrier: selectedShipping?.name || 'Melhor Envio',
+        });
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        clearCart();
       } else {
-        // Criar Stripe PaymentIntent para Cartão
-        await fetch('/api/payment/create-intent', {
+        // Validação básica do nome do titular do cartão
+        if (!cardHolderName.trim()) {
+          setCardError('Por favor, informe o nome impresso no cartão de crédito.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Criar Stripe PaymentIntent via API Next.js
+        const response = await fetch('/api/payment/create-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             amountBrl: finalTotal,
-            customerEmail: formData.email,
+            customer: {
+              name: formData.name,
+              email: formData.email,
+              cpf: formData.cpf,
+              phone: formData.phone,
+            },
+            shippingAddress: formData,
+            shipping: selectedShipping,
+            items: items.map((i) => ({
+              variantId: i.variantId,
+              productId: i.productId,
+              title: i.title,
+              size: i.size,
+              price: i.price,
+              quantity: i.quantity,
+            })),
             paymentMethodType: 'card',
           }),
         });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Não foi possível autorizar o cartão.');
+        }
+
+        setConfirmedOrder({
+          orderNumber: data.orderNumber || Math.floor(100000 + Math.random() * 900000),
+          totalAmount: finalTotal,
+          email: formData.email,
+          shippingCarrier: selectedShipping?.name || 'Melhor Envio',
+        });
+
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        clearCart();
       }
+    } catch (err: any) {
+      console.error('Erro no checkout:', err);
+      setCardError(err.message || 'Falha ao processar o pagamento. Verifique os dados digitados.');
       setIsSubmitting(false);
-      setIsSuccess(true);
-      clearCart();
-    } catch {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      clearCart();
     }
   };
 
@@ -127,7 +186,7 @@ export default function CheckoutPage() {
 
           <div>
             <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-zinc-400">
-              PEDIDO CONFIRMADO &bull; DECIDA CONTINUAR
+              PEDIDO #{confirmedOrder?.orderNumber || '000000'} &bull; DECIDA CONTINUAR
             </span>
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white mt-1">
               {paymentMethod === 'PIX' ? 'Aguardando Pagamento do PIX' : 'Pagamento Aprovado via Stripe!'}
@@ -135,6 +194,32 @@ export default function CheckoutPage() {
             <p className="text-xs text-zinc-400 mt-2">
               Enviamos todos os detalhes do pedido para o seu e-mail: <strong className="text-white">{formData.email || 'seu email'}</strong>.
             </p>
+          </div>
+
+          {/* Dados do Pedido Confirmado */}
+          <div className="p-4 bg-black border border-white/10 text-left space-y-2 text-xs font-mono">
+            <div className="flex justify-between text-zinc-400">
+              <span>Status:</span>
+              <span className="text-white font-bold">
+                {paymentMethod === 'PIX' ? 'Aguardando Compensação' : 'Aprovado & Em Separação'}
+              </span>
+            </div>
+            <div className="flex justify-between text-zinc-400">
+              <span>Forma de Pagamento:</span>
+              <span className="text-white">
+                {paymentMethod === 'PIX' ? 'PIX (10% OFF)' : `Cartão de Crédito (${installments}x)`}
+              </span>
+            </div>
+            <div className="flex justify-between text-zinc-400">
+              <span>Envio Escolhido:</span>
+              <span className="text-white">{confirmedOrder?.shippingCarrier || 'Melhor Envio'}</span>
+            </div>
+            <div className="flex justify-between text-zinc-400 pt-2 border-t border-white/10">
+              <span>Total Pago:</span>
+              <strong className="text-white text-sm">
+                R$ {(confirmedOrder?.totalAmount || finalTotal).toFixed(2).replace('.', ',')}
+              </strong>
+            </div>
           </div>
 
           {paymentMethod === 'PIX' && pixData && (
@@ -172,10 +257,15 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          <div className="pt-2">
-            <Link href="/">
+          <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            <Link href="/conta" className="flex-1">
               <Button variant="outline" size="md" className="w-full">
-                Voltar à Página Principal
+                Ver Meus Pedidos
+              </Button>
+            </Link>
+            <Link href="/" className="flex-1">
+              <Button variant="primary" size="md" className="w-full">
+                Voltar à Loja
               </Button>
             </Link>
           </div>
@@ -399,7 +489,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* 3. Forma de Pagamento */}
-            <div className="p-6 bg-zinc-950 border border-white/10 space-y-4">
+            <div className="p-6 bg-zinc-950 border border-white/10 space-y-5">
               <h3 className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-2">
                 <span className="w-5 h-5 bg-white text-black font-black text-xs flex items-center justify-center font-mono">3</span>
                 Forma de Pagamento (Stripe / PIX)
@@ -434,6 +524,20 @@ export default function CheckoutPage() {
                   <span className="text-[10px] text-zinc-400">Até 3x sem juros</span>
                 </button>
               </div>
+
+              {/* Seção do Cartão de Crédito Stripe */}
+              {paymentMethod === 'CREDIT_CARD' && (
+                <div className="pt-4 border-t border-white/10">
+                  <StripeCardSection
+                    cardHolderName={cardHolderName}
+                    setCardHolderName={setCardHolderName}
+                    installments={installments}
+                    setInstallments={setInstallments}
+                    totalAmount={finalTotal}
+                    errorMessage={cardError}
+                  />
+                </div>
+              )}
             </div>
 
           </div>
@@ -500,7 +604,7 @@ export default function CheckoutPage() {
                     </span>
                     {paymentMethod === 'CREDIT_CARD' && (
                       <span className="block text-[10px] text-zinc-400 font-normal">
-                        em até 3x de R$ {(finalTotal / 3).toFixed(2).replace('.', ',')} sem juros
+                        em até {installments}x de R$ {(finalTotal / installments).toFixed(2).replace('.', ',')} sem juros
                       </span>
                     )}
                   </div>
@@ -514,7 +618,11 @@ export default function CheckoutPage() {
                 disabled={isSubmitting}
                 className="w-full font-black tracking-widest text-xs py-4 cursor-pointer"
               >
-                {isSubmitting ? 'Processando Armadura...' : 'Confirmar e Finalizar Pedido'}
+                {isSubmitting
+                  ? paymentMethod === 'PIX'
+                    ? 'Gerando QR Code PIX...'
+                    : 'Processando com a Stripe...'
+                  : 'Confirmar e Finalizar Pedido'}
               </Button>
             </div>
           </div>
@@ -523,3 +631,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

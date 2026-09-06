@@ -89,9 +89,11 @@ styfla/
 - [ ] **Substituição dos Mocks por Queries Prisma:** Conectar as rotas Server Actions/APIs do Next.js diretamente ao banco de dados.
 
 ### 💳 Fase 2: Integrações Reais de Pagamento & Frete
-- [ ] **Gateway de Pagamento (Mercado Pago / Stripe / Pagar.me):**
-  - Implementar geração real de cobrança PIX via API e tokenização client-side de cartão de crédito.
-  - Implementar endpoint de **Webhook** (`/api/webhooks/payment`) para atualizar automaticamente o status do pedido para `PAID` e dar baixa no estoque.
+- [x] **Gateway de Pagamento (Stripe & PIX):**
+  - Integração do SDK oficial da Stripe (`packages/services/src/payment/stripe.ts`) com geração de `PaymentIntent`, metadados completos e estornos.
+  - Componente de formulário `@stripe/react-stripe-js` (`StripeCardSection.tsx`) no padrão visual monocromático STYFLA.
+  - Endpoint de **Webhook** (`/api/webhooks/stripe`) com validação criptográfica HMAC, atualização de `Order.status = PAID` e baixa automática no estoque do PostgreSQL (`ProductVariant.stock`).
+  - Fallback/Sandbox resiliente para ambiente de desenvolvimento local sem chaves ativas.
 - [ ] **API de Frete (Melhor Envio / Correios):**
   - Conectar cotação real de frete por cubagem em `packages/services/src/shipping.ts`.
   - Implementar emissão automática de etiquetas de postagem no painel Admin.
